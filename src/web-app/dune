@@ -1,0 +1,6 @@
+(executable
+ (name webapp)
+ (libraries lwd tyxml-lwd)
+ (modes js)
+ (preprocess
+  (pps js_of_ocaml-ppx)))
