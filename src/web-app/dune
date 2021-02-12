@@ -1,6 +1,6 @@
 (executable
  (name webapp)
- (libraries lwd tyxml-lwd)
+ (libraries tyxml-lwd view js_of_ocaml)
  (modes js)
  (preprocess
   (pps js_of_ocaml-ppx)))
