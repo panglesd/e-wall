@@ -1,0 +1,5 @@
+(library
+ (name view)
+ (libraries js_of_ocaml-lwt lwd tyxml-lwd)
+ (preprocess
+  (pps js_of_ocaml-ppx)))
