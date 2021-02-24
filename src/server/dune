@@ -1,3 +1,3 @@
 (library
  (name server)
- (libraries opium tyxml))
+ (libraries opium tyxml model))

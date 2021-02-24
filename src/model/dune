@@ -1,2 +1,3 @@
 (library
- (name model))
+ (name model)
+ (preprocess (pps ppx_yojson_conv)))

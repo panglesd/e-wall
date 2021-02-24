@@ -4,3 +4,8 @@
  (modes js)
  (preprocess
   (pps js_of_ocaml-ppx)))
+
+
+(subdir
+ static
+ (copy_files %{project_root}/src/web-app/webapp.bc.js))
