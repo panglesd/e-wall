@@ -14,6 +14,7 @@ type t = {
     cotation : Cotation.t option ;
   } [@@deriving yojson]
 
+type t_list = t list  [@@deriving yojson]
            
 let make ?id ?initial_hold ?final_hold ?cotation ~name ~holds ~feet () = 
   {

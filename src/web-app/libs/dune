@@ -1,0 +1,5 @@
+(library
+ (name webapp_libs)
+ (libraries js_of_ocaml-lwt lwd tyxml-lwd model lwt)
+ (preprocess
+  (pps js_of_ocaml-ppx)))

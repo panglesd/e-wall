@@ -15,23 +15,23 @@ let myPage =
    
 let getPanel req =
   let idPanel = int_of_string @@ Router.param req "idPanel" in
-  let somePanel = Panel.make ~id:idPanel ~name:"Un panneau quelconque" in
+  let somePanel = Panel.make ~id:idPanel ~name:"Un panneau quelconque" ~filename:"panel.png" () in
   Response.of_json (
       Panel.yojson_of_t somePanel)
   |> Lwt.return
 
 let getHold req =
   let idHold =  int_of_string @@ Router.param req "idHold" in
-  let somePanel = Panel.make ~id:0 ~name:"Un panneau quelconque" in
-  let someHold = Hold.make ~id:idHold ~panel:(somePanel) ~polygone:[(0,0);(1,1)] ~name:"exemple de prise" in
+  let somePanel = Panel.make ~id:0 ~name:"Un panneau quelconque" ~filename:"panel.png" () in
+  let someHold = Hold.make ~id:idHold ~panel:(somePanel) (* ~polygone:[(0,0);(1,1)] *) ~position:(10,10) ~size:10 ~name:"exemple de prise" in
   Response.of_json (Hold.yojson_of_t someHold)
   |> Lwt.return
   
 let getRoute req =
   let idRoute =  int_of_string @@ Router.param req "idRoute" in
-  let somePanel = Panel.make ~id:0 ~name:"Un panneau quelconque" in
-  let someHold1 = Hold.make ~id:1 ~panel:(somePanel) ~polygone:[(0,0);(1,1)] ~name:"exemple de prise" in
-  let someHold2 = Hold.make ~id:2 ~panel:(somePanel) ~polygone:[(0,0);(1,2)] ~name:"exemple de prise" in
+  let somePanel = Panel.make ~id:0 ~name:"Un panneau quelconque" ~filename:"panel.png" () in
+  let someHold1 = Hold.make ~id:1 ~panel:(somePanel) (* ~polygone:[(0,0);(1,1)] *) ~position:(10,10) ~size:10 ~name:"exemple de prise" in
+  let someHold2 = Hold.make ~id:2 ~panel:(somePanel) (* ~polygone:[(0,0);(1,2)] *) ~position:(10,10) ~size:10 ~name:"exemple de prise" in
   let someRoute = Route.make
                     ~id:idRoute
                     ~name:"Papillote"
