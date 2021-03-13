@@ -5,7 +5,7 @@ end
 
                 
 type t = {
-    id : int option ;
+    id : string ;
     name : string ;
     holds : Hold.t list ;
     feet : Feet.t ;
@@ -16,7 +16,7 @@ type t = {
 
 type t_list = t list  [@@deriving yojson]
            
-let make ?id ?initial_hold ?final_hold ?cotation ~name ~holds ~feet () = 
+let make ~id ?initial_hold ?final_hold ?cotation ~name ~holds ~feet () = 
   {
     id ;
     name ;

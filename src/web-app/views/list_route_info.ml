@@ -14,7 +14,7 @@ let make_var list_route_var =
 let make list_route =
   let div_info = List.map Route_view.make list_route in
   (* let holds_info = List.map Hold_view.make list_route.holds in *)
-  div ~a:[a_class (Lwd.pure ["right-panel-route"])] [
+  div ~a:[a_class (Lwd.pure ["all-route-info"])] [
       div ~a:[] div_info;
       (* div ~a:[a_class (Lwd.pure(["route-hold-list"]))] holds_info; *)
     ]

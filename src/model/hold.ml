@@ -1,5 +1,5 @@
 type t = {
-    id : int option ;
+    id : string ;
     panel : Panel.t ;
     (* polygone : (int * int) list ; *)
     position : int * int ;
@@ -8,7 +8,7 @@ type t = {
   } [@@deriving yojson]
 
 
-let make ?id ~panel (* ~polygone *) ~position ~size ~name =
+let make ~id ~panel (* ~polygone *) ~position ~size ~name =
   {
     id;
     panel;
@@ -17,3 +17,4 @@ let make ?id ~panel (* ~polygone *) ~position ~size ~name =
     size;
     name;
   }
+

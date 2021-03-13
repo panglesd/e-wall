@@ -1,3 +1,4 @@
 (library
  (name model)
- (preprocess (pps ppx_yojson_conv)))
+ (libraries irmin)
+ (preprocess (pps ppx_yojson_conv ppx_irmin)))

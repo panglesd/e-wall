@@ -1,0 +1,4 @@
+(library
+ (name db)
+ (libraries irmin irmin-unix model)
+ (preprocess (pps ppx_irmin)))

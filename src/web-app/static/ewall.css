@@ -1,3 +1,61 @@
-* {
+/* * { */
+/*     background-color: red; */
+/* } */
+
+
+.bottom-panel {
+
+    
+}
+
+.main-panel {
+    
+}
+
+
+.right-panel-route {
+
+    
+}
+
+.app-root {
+    display: flex;
+    position: fixed;
+    top:0;
+    bottom:0;
+    left:0;
+    right:0;
+}
+.panels-root {
+    background-color: blue;
+    flex-grow: 1;
+    display:flex;
+    flex-direction: column;
+}
+
+.main-panel {
+    background-color: purple;
+    flex-grow: 1;
+}
+
+.bottom-panel {
+    background-color: green;
+    height: 100px;
+    display: flex;
+}
+
+.routes-root {
     background-color: red;
+    /* width: 100px; */
+    display:flex;
+}
+
+.all-route-info {
+    background-color: pink;
+    flex-grow: 1;
+}
+
+.route-info {
+    background-color: violet;
+    flex-grow: 1;
 }

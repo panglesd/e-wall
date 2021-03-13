@@ -5,7 +5,7 @@ open Webapp_libs
    
 let i = ref 0
 let new_panel ():Panel.t = {
-    id = Some(!i);
+    id = string_of_int(!i);
     name = "panel numéro " ^ (string_of_int !i);
     filename = "filename.jpg"
   }
