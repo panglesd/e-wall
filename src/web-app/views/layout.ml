@@ -6,9 +6,11 @@ open Lwt.Syntax
    
 let v = Lwd.var 1
 
-let make_panels_div all_panels_var =
+let make_panels_div all_panels_var current_panel_var =
   let$* all_panels = Lwd.get all_panels_var in
-  let l = List.map Panel_view.div_from_panel all_panels in
+  let on_click panel = Some (fun _ev ->
+    Lwd.set current_panel_var (Some panel); false) in
+  let l = List.map (Panel_view.div_from_panel ~on_click) all_panels in
   div ~a:[a_class (Lwd.pure ["bottom-panel"])] l
 
 let make_panel_form panel_form_var =
@@ -65,7 +67,7 @@ let make () =
     Lwd.set current_route_var (Some (List.hd all_routes)) in
   (* let texte_string = txt @@ Lwd.map ~f:string_of_int (Lwd.get v) in *)
 
-  let panels_div  = make_panels_div all_panels_var in
+  let panels_div  = make_panels_div all_panels_var current_panel_var in
   let main_panel_div  = make_main_panel_div current_panel_var in
   let routes_div  = make_routes_div all_routes_var in
   let route_info_div  = make_route_info_div current_route_var in

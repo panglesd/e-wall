@@ -2,16 +2,6 @@ open Opium
 open Tyxml.Html
 open Model
 
-module Opt_syntax = struct
-  let ( let** ) o f = match o with
-    | None -> None
-    | Some x -> f x
-  let ( and** ) a b = match a,b with
-    | None, _ -> None
-    | _, None -> None
-    | Some x, Some y -> Some (x,y) 
-end
-   
 let () = Stdlib.Random.self_init ()
 let get_rand_id () =
   let _ = Stdlib.Random.bits () in
@@ -129,7 +119,7 @@ let save_file ~prefix ~folder req =
 let add_panel req =
   (* Request.pp_hum (Format.std_formatter) req; *)
   let open Lwt.Syntax in
-  let open Opt_syntax in
+  let open Opt_monad in
   let panel_id = get_rand_id () in
   let* panel_map_list_opt, filenames = save_file ~prefix:panel_id ~folder:".ewall/img/panel-img" req in 
   let filename = match filenames with [] -> None | fn::_ -> Some fn in
