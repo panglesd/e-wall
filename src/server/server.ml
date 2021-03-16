@@ -131,7 +131,7 @@ let add_panel req =
   let open Lwt.Syntax in
   let open Opt_syntax in
   let panel_id = get_rand_id () in
-  let* panel_map_list_opt, filenames = save_file ~prefix:panel_id ~folder:"img/panel-img" req in 
+  let* panel_map_list_opt, filenames = save_file ~prefix:panel_id ~folder:".ewall/img/panel-img" req in 
   let filename = match filenames with [] -> None | fn::_ -> Some fn in
   match filename with None -> hello2 req | Some filename ->
   let new_panel =
@@ -170,7 +170,7 @@ let start () =
   |> App.get "/hold/:idHold" getHold
   |> App.get "/greet/:name/" greet
   |> App.get "/greet/:name" greet
-  |> App.middleware @@ Middleware.static_unix ~local_path:"img/panel-img" ~uri_prefix:"/img/panel-img" ()
+  |> App.middleware @@ Middleware.static_unix ~local_path:".ewall/img/panel-img" ~uri_prefix:"/img/panel-img" ()
   |> App.middleware @@ Middleware.static_unix ~local_path:"_build/default/src/web-app/static" ~uri_prefix:"/" ()
   |> App.run_command
   |> ignore

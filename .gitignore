@@ -27,3 +27,7 @@ setup.log
 
 # Local OPAM switch
 _opam/
+
+# E-wall things:
+.ewall
+img
