@@ -12,7 +12,7 @@ let new_panel ():Panel.t = {
    
 let div_from_panel ?f (panel:Panel.t) =
   let panelImg = img
-                   ~src:(Lwd.pure @@ "panel-img/" ^ (panel.filename) ^ ".jpg")
+                   ~src:(Lwd.pure @@ "img/panel-img/" ^ (panel.filename))
                    ~alt:(Lwd.pure panel.name)
                    () in
   let panelName = txt (Lwd.pure panel.name) in
