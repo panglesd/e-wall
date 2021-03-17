@@ -1,7 +1,8 @@
 open Model
 open Tyxml_lwd.Html
+open Lwd_infix
 
-let make (route:Route.t) = 
+let div_of_route (route:Route.t) = 
   let cotation_string = match route.cotation with
       None -> "Non côtée"
     | Some cot -> Cotation.string_of_cotation cot in
@@ -13,3 +14,17 @@ let make (route:Route.t) =
       div ~a:[a_class (Lwd.pure ["route-cotation"])] [txt (Lwd.pure cotation_string)];
       div ~a:[a_class (Lwd.pure ["route-feet"])] [txt (Lwd.pure feet_string)];
     ] 
+
+let make_var list_route_var =
+  let$* list_route:Route.t list = Lwd.get list_route_var in
+  let div_info = List.map Route_view.make list_route in
+  div ~a:[a_class (Lwd.pure ["right-panel-route"])] [
+      div ~a:[] div_info;
+    ]
+  
+let make list_route =
+  let div_info = List.map Route_view.make list_route in
+  div ~a:[a_class (Lwd.pure ["all-route-info"])] [
+      div ~a:[] div_info;
+    ]
+    
