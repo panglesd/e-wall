@@ -1,0 +1,5 @@
+(library
+ (name logic)
+ (libraries js_of_ocaml-lwt lwd tyxml-lwd model lwt webapp_libs opt_monad)
+ (preprocess
+  (pps js_of_ocaml-ppx)))

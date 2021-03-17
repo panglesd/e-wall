@@ -1,12 +1,10 @@
-open Tyxml_lwd.Html
-open Lwd_infix
 open Webapp_libs
 open Lwt.Syntax
-
-let all_panels_var = Lwd.var [] 
+   
+let (all_panels_var:Model.Panel.t list Lwd.var) = Lwd.var [] 
 let current_route_var = Lwd.var @@ None 
 let current_panel_var = Lwd.var @@ None 
-let panel_form_var = Lwd.var @@ None 
+let (panel_form_var:unit option Lwd.var) = Lwd.var @@ None
 (* let current_route_var = Lwd.var @@ Some (Model.Route.make ~name:"" ~holds:[] ~feet:All ()) 
  * let current_panel_var = Lwd.var @@ Some (Model.Panel.make ~name:"" ~filename:"" ())  *)
 let all_routes_var = Lwd.var [] 
