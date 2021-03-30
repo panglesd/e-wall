@@ -35,7 +35,7 @@ let div_list_from_route_list ?f route_list =
 
 let make_route_list_div list_route_var =
   let$* list_route = Lwd.get list_route_var in
-  let div_info = List.map div_of_route list_route in
+  let div_info = div_list_from_route_list ~f:(fun route  -> Some (fun _ -> Logic.set_current_route (Some route);false)) list_route in
   div ~a:[a_class (Lwd.pure ["all-route-info"])] [
       div ~a:[] div_info;
     ]
@@ -43,6 +43,7 @@ let make_route_list_div list_route_var =
 (* The "current route" div           *)
 
 let make_current_route_div current_route_var =
+  let close_div = input ~a:[a_input_type (Lwd.pure `Button); a_onclick (Lwd.pure @@ Some (fun _ -> Logic.set_current_route None; false))] () in
   let$* current_route = Lwd.get current_route_var in
   match current_route with
     None -> 
@@ -51,6 +52,7 @@ let make_current_route_div current_route_var =
     let div_info = div_of_route current_route in
   let holds_info = List.map Hold_view.make current_route.holds in
   div ~a:[a_class (Lwd.pure ["right-panel-route"])] [
+      close_div;
       div_info;
       div ~a:[a_class (Lwd.pure(["route-hold-list"]))] holds_info;
     ]

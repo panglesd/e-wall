@@ -1,3 +1,4 @@
 (library
  (name opt_monad)
+  (libraries lwt)
  )

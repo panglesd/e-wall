@@ -28,3 +28,7 @@ let get_all_routes () =
   let+ frame = perform_raw ~response_type:Default ("route") in
   Model.Route.t_list_of_yojson (Yojson.Safe.from_string frame.content)
         
+let get_all_holds () =
+  let+ frame = perform_raw ~response_type:Default ("hold") in
+  Model.Hold.t_list_of_yojson (Yojson.Safe.from_string frame.content)
+        

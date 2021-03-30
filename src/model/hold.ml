@@ -7,6 +7,7 @@ type t = {
     name : string ;
   } [@@deriving yojson]
 
+type t_list = t list [@@deriving yojson]
 
 let make ~id ~panel (* ~polygone *) ~position ~size ~name =
   {
@@ -18,3 +19,4 @@ let make ~id ~panel (* ~polygone *) ~position ~size ~name =
     name;
   }
 
+let of_string s = s |> Yojson.Safe.from_string |> t_of_yojson

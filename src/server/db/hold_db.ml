@@ -25,8 +25,8 @@ end
             
 module Store = Irmin_unix.Git.FS.KV (Content)
 
-let config = Irmin_git.config ~bare:true ".ewall/db"
-                                
+let config = Irmin_git.config ~bare:true ".ewall/db/holds"
+
 let get_master () =
   (* Open the repo *)
   Store.Repo.v config

@@ -12,5 +12,7 @@ let make ~id ~name ~filename () = {
     filename;
   }
 
+let of_string s = s |> Yojson.Safe.from_string |> t_of_yojson
+
 let pp panel =
   Printf.sprintf "Panel id=%s name=%s filename=%s\n" panel.id panel.name panel.filename
