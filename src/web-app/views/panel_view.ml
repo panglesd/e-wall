@@ -58,7 +58,6 @@ let make_main_panel_div current_panel_var current_holds_var =
     let elem = Js_of_ocaml.Dom.eventTarget e in
     let x,y = Js_of_ocaml.Dom_html.elementClientPosition elem in
     let x2,y2 = Js_of_ocaml.Dom_html.eventAbsolutePosition e in
-    let x2,y2 = Js_of_ocaml.Dom_html.even e in
     Printf.printf "we clicked client pos %d %d\n" x y;
     Printf.printf "we clicked absolute pos %d %d\n" x2 y2;
     false in
