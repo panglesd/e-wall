@@ -38,6 +38,7 @@ let set_current_route (route:Model.Route.t option) =
   match route with
     None ->
      Lwd.set current_route_var None;
+     Lwd.set current_holds_var [];
      ignore @@ update_panel_list ()
   | Some route ->
      Lwd.set current_route_var (Some route);

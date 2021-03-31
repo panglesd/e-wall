@@ -49,9 +49,19 @@ let make_panel_list_div all_panels_var current_panel_var =
 (* The "main panel" div              *)
 
 let hold_in_panel_div (hold:Model.Hold.t) =
-  div ~a:[a_style (Lwd.pure "top:20px; left: 20px"); a_class (Lwd.pure [hold.name])] []
+  let _ = a_onclick (Lwd.pure @@ Some (fun _e -> false)) in
+  let (x,y) = hold.position in
+  div ~a:[a_style (Lwd.pure @@ Printf.sprintf "top:%dpx; left: %dpx" x y); a_class (Lwd.pure [hold.name; "hold"])] []
   
 let make_main_panel_div current_panel_var current_holds_var =
+  let on_click = fun e ->
+    let elem = Js_of_ocaml.Dom.eventTarget e in
+    let x,y = Js_of_ocaml.Dom_html.elementClientPosition elem in
+    let x2,y2 = Js_of_ocaml.Dom_html.eventAbsolutePosition e in
+    let x2,y2 = Js_of_ocaml.Dom_html.even e in
+    Printf.printf "we clicked client pos %d %d\n" x y;
+    Printf.printf "we clicked absolute pos %d %d\n" x2 y2;
+    false in
   let$* current_panel_opt = Lwd.get current_panel_var
   and$ current_holds = Lwd.get current_holds_var in
   let holds_div_list = List.map hold_in_panel_div current_holds in
@@ -60,9 +70,12 @@ let make_main_panel_div current_panel_var current_holds_var =
   | Some (current_panel) -> 
      div
        ~a:[a_class (Lwd.pure ["main-panel"])]
-       ([
-         img ~src:(Lwd.pure ("img/panel-img/"^Model.Panel.(current_panel.filename))) ~alt:(Lwd.pure "current panel") ();
-       ] @ holds_div_list)
+       [
+        div ~a:[a_class (Lwd.pure ["panel-hold-container"]) ; a_onclick (Lwd.pure @@ Some on_click)] 
+                  ([
+                      img ~src:(Lwd.pure ("img/panel-img/"^Model.Panel.(current_panel.filename))) ~alt:(Lwd.pure "current panel") ();
+                    ] @ holds_div_list)
+          ]
 
 (* The "add a panel" form            *)
 
