@@ -42,7 +42,7 @@ let set_current_route (route:Model.Route.t option) =
      ignore @@ update_panel_list ()
   | Some route ->
      Lwd.set current_route_var (Some route);
-     Lwd.set current_holds_var (route.holds);
+     Lwd.set current_holds_var (List.map (fun h -> Lwd.var h) route.holds);
      set_panel_list @@ List.sort_uniq compare @@ List.map (fun hold -> Model.Hold.(hold.panel)) route.holds
   (* Lwd.set all_panels_var (      
    *     List.sort_uniq compare @@ List.map (fun hold -> Model.Hold.(hold.panel)) route.holds
@@ -62,3 +62,7 @@ let update_route_list () =
   
 
     
+let remove_hold hold_var =
+  Lwd.set current_holds_var (
+      List.filter (fun v -> Lwd.peek v <> Lwd.peek hold_var) @@ Lwd.peek current_holds_var
+    )
