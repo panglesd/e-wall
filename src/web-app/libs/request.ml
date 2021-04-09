@@ -1,6 +1,7 @@
 open Lwt.Syntax
 open Js_of_ocaml_lwt.XmlHttpRequest
 
+
 let get_all_panels () = 
   (* let+ is from Lwt and is equivalent to bind:
    * let+ : ('a -> 'b) -> 'a -> 'b t 
@@ -32,3 +33,10 @@ let get_all_holds () =
   let+ frame = perform_raw ~response_type:Default ("hold") in
   Model.Hold.t_list_of_yojson (Yojson.Safe.from_string frame.content)
         
+let send_new_holds new_holds =
+  print_string "called";
+  let yojsoned = new_holds |> Model.Hold.yojson_of_t_list |> Yojson.Safe.to_string in
+  let* frame = perform_raw_url ~contents:(`POST_form([("new_holds", `String (Js_of_ocaml.Js.string yojsoned))])) "hold" in
+  Lwt.return @@ Model.Hold.t_list_of_yojson (Yojson.Safe.from_string frame.content)
+  (* print_endline frame.content;
+   * get_all_holds () *)

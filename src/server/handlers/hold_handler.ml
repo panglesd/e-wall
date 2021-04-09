@@ -28,32 +28,48 @@ let add_hold_yojsoned req =
     let hold =  hold_string
                 |> Yojson.Safe.from_string
                 |> Model.Hold.t_of_yojson in
-    Some (Db__Hold_db.add ~hold:hold) in
+    Some (Db__Hold_db.set ~hold:hold) in
   callback req
 
 
-let add_hold req =
 
+let update_holds req = 
   let open Opt_monad in
-         
-  let callback = Main_handler.main_handler in
-
+  let open Lwt.Syntax in
   let* _result =
-    let**+ hold =
-      let**+ panel_string = Request.urlencoded "panel" req
-      and**+ position_x_string = Request.urlencoded "position_x" req
-      and**+ position_y_string = Request.urlencoded "position_y" req
-      and**+ size_string = Request.urlencoded "size" req
-      and**+ name_string = Request.urlencoded "name" req in
-      Model.Hold.make
-              ~id:"0"
-              ~panel:(Panel.of_string panel_string)
-              ~position:(int_of_string position_x_string, int_of_string position_y_string)
-              ~size:(int_of_string size_string)
-              ~name:name_string
-    in
-    let+ result = Db__Hold_db.add ~hold in
-    result
+    let**+ new_holds_string = Request.urlencoded "new_holds" req in
+    new_holds_string |> Yojson.Safe.from_string |> Model.Hold.t_list_of_yojson
   in
+  match _result with
+    Some hold_list ->
+     let+ () = Db__Hold_db.set_all hold_list in
+     Response.of_plain_text "dzdzd"
+  | None -> Response.of_plain_text "yoooooooooooo" |> Lwt.return
+  
 
-  callback req
+  
+(* let add_hold req =
+ * 
+ *   let open Opt_monad in
+ *          
+ *   let callback = Main_handler.main_handler in
+ * 
+ *   let* _result =
+ *     let**+ hold =
+ *       let**+ panel_string = Request.urlencoded "panel" req
+ *       and**+ position_x_string = Request.urlencoded "position_x" req
+ *       and**+ position_y_string = Request.urlencoded "position_y" req
+ *       and**+ size_string = Request.urlencoded "size" req
+ *       and**+ name_string = Request.urlencoded "name" req in
+ *       Model.Hold.make
+ *               ~id:"0"
+ *               ~panel:(Panel.of_string panel_string)
+ *               ~position:(int_of_string position_x_string, int_of_string position_y_string)
+ *               ~size:(int_of_string size_string)
+ *               ~name:name_string
+ *     in
+ *     let+ result = Db__Hold_db.add ~hold in
+ *     result
+ *   in
+ * 
+ *   callback req *)

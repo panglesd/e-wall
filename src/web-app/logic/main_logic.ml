@@ -18,6 +18,23 @@ let current_holds_var = Lwd.var @@ []
 
 
   
+let set_current_holds hold_list =
+  Lwd.set current_holds_var hold_list
+
+let update_current_holds () =
+  let+ all_holds = Request.get_all_holds () in
+  Lwd.set current_holds_var (List.map Lwd.var all_holds)
+
+let save_current_holds new_holds =
+  let+ all_holds = Request.send_new_holds new_holds  in
+  Lwd.set current_holds_var (List.map Lwd.var all_holds)
+  
+  
+let remove_hold hold_var =
+  set_current_holds (
+      List.filter (fun v -> Lwd.peek v <> Lwd.peek hold_var) @@ Lwd.peek current_holds_var
+    )
+
 let set_current_panel (panel:Model.Panel.t) =
   Lwd.set current_panel_var (Some panel)
 
@@ -32,17 +49,18 @@ let update_panel_list () =
   let+ all_panels = Request.get_all_panels () in
   print_endline("got all panels!");
   Lwd.set all_panels_var all_panels;
-  Lwd.set current_panel_var (Some (List.hd all_panels))
+  Lwd.set current_panel_var (Some (List.hd all_panels));
+  update_current_holds ()
 
 let set_current_route (route:Model.Route.t option) =
   match route with
     None ->
      Lwd.set current_route_var None;
-     Lwd.set current_holds_var [];
+     set_current_holds [];
      ignore @@ update_panel_list ()
   | Some route ->
      Lwd.set current_route_var (Some route);
-     Lwd.set current_holds_var (List.map (fun h -> Lwd.var h) route.holds);
+     set_current_holds (List.map (fun h -> Lwd.var h) route.holds);
      set_panel_list @@ List.sort_uniq compare @@ List.map (fun hold -> Model.Hold.(hold.panel)) route.holds
   (* Lwd.set all_panels_var (      
    *     List.sort_uniq compare @@ List.map (fun hold -> Model.Hold.(hold.panel)) route.holds
@@ -60,9 +78,3 @@ let update_route_list () =
   let+ all_routes = Request.get_all_routes () in
   set_route_list all_routes
   
-
-    
-let remove_hold hold_var =
-  Lwd.set current_holds_var (
-      List.filter (fun v -> Lwd.peek v <> Lwd.peek hold_var) @@ Lwd.peek current_holds_var
-    )
