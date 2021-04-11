@@ -49,7 +49,7 @@ end
             
 module Store = Irmin_unix.Git.FS.KV (Content)
 
-let config = Irmin_git.config ~bare:true ".ewall/db"
+let config = Irmin_git.config ~bare:true ".ewall/db/route_db"
                                 
 let get_master () =
   (* Open the repo *)

@@ -35,3 +35,16 @@ let get_all_routes _req =
   Response.of_json (Route.yojson_of_t_list [someRoute;someRoute2])
   |> Lwt.return
 
+
+let add_route req = 
+  let open Opt_monad in
+  let open Lwt.Syntax in
+  let* _result =
+    let**+ new_route_string = Request.urlencoded "new_route" req in
+    new_route_string |> Yojson.Safe.from_string |> Model.Route.t_of_yojson
+  in
+  match _result with
+    Some route ->
+     let+ () = Db__Route_db.add ~route in
+     Response.of_plain_text "dzdzd"
+  | None -> Response.of_plain_text "yoooooooooooo" |> Lwt.return

@@ -26,3 +26,15 @@ let make ~id ?initial_hold ?final_hold ?cotation ~name ~holds ~feet () =
     initial_hold  ;
     cotation ;
   }
+
+
+let add_hold route hold =
+  let id = route.id
+  and initial_hold = route.initial_hold
+  and final_hold = route.final_hold
+  and cotation = route.cotation
+  and name = route.name
+  and holds = route.holds @ [hold]
+  and feet = route.feet
+  in
+  make ~id ?initial_hold ?final_hold ?cotation ~name ~holds ~feet ()

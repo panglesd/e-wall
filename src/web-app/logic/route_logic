@@ -6,16 +6,6 @@ type tool = Add | Move | Delete
 let tool_var = Lwd.var Move
 let focused_var = Lwd.var None
 
-let save_panel : Tyxml_lwd.Xml.mouse_event_handler =
-  let f = fun _e ->
-    ignore @@ Webapp_libs.Request.send_new_holds (
-                  Main_logic.current_holds_var
-                  |> Lwd.peek
-                  |> List.map Lwd.peek
-                );
-    false in
-  Lwd.pure (Some f)
-                
 let mouse_click_add : Tyxml_lwd.Xml.mouse_event_handler =
   let f = fun e ->
     let elem = Js_of_ocaml.Dom.eventTarget e in
@@ -117,17 +107,5 @@ let mouse_leave_move hold_var =
         Lwd.set focused_var (Some (hold_var, (x, y), (xev,yev))); false)
   
 let mouse_leave_callback hold_var = 
-  let$* tool = Lwd.get tool_var in
-  match tool with
-    Move -> mouse_leave_move hold_var
-  | Add -> Lwd.pure None
-  | Delete -> Lwd.pure None
-
-                       (* let hold_mouseleave_callback = mouse_up_callback *)
-                       (* let$ focused = Lwd.get focused_var in
-                        * match focused with
-                        *   None -> None
-                        * | Some _ -> 
-                        *    Some (fun _e -> Lwd.set focused_var None; false) *)
-                
+							()                
                 

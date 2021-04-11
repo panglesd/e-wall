@@ -1,6 +1,6 @@
 open Webapp_libs
 open Lwt.Syntax
-   
+open Lwd_infix   
 (* The list of panels *)
 let (all_panels_var:Model.Panel.t list Lwd.var) = Lwd.var [] 
 (* The list of routes *)
@@ -14,9 +14,24 @@ let current_holds_var = Lwd.var @@ []
 (* let (panel_form_var:unit option Lwd.var) = Lwd.var @@ None *)
 
 
+(** Ui state Variables  *)
 
+type ui_state =
+  Editing_Panel
+| Editing_Route
+| Viewing_Content
 
+let ui_state_var = Lwd.var Viewing_Content
 
+let make_callback ~editing_panel ~editing_route ~viewing_content hold_var_opt =
+  let$* ui_state = Lwd.get ui_state_var in
+  match ui_state with
+    Editing_Panel -> editing_panel hold_var_opt
+  | Editing_Route -> editing_route hold_var_opt
+  | Viewing_Content -> viewing_content hold_var_opt
+
+                 
+(** Global state variables, getters and setters  *)
   
 let set_current_holds hold_list =
   Lwd.set current_holds_var hold_list

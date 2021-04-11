@@ -34,9 +34,16 @@ let get_all_holds () =
   Model.Hold.t_list_of_yojson (Yojson.Safe.from_string frame.content)
         
 let send_new_holds new_holds =
-  print_string "called";
   let yojsoned = new_holds |> Model.Hold.yojson_of_t_list |> Yojson.Safe.to_string in
   let* frame = perform_raw_url ~contents:(`POST_form([("new_holds", `String (Js_of_ocaml.Js.string yojsoned))])) "hold" in
   Lwt.return @@ Model.Hold.t_list_of_yojson (Yojson.Safe.from_string frame.content)
   (* print_endline frame.content;
    * get_all_holds () *)
+
+let send_new_route new_route =
+  let yojsoned = new_route |> Model.Route.yojson_of_t |> Yojson.Safe.to_string in
+  let* frame = perform_raw_url ~contents:(`POST_form([("new_route", `String (Js_of_ocaml.Js.string yojsoned))])) "route" in
+  Lwt.return @@ Model.Route.t_list_of_yojson (Yojson.Safe.from_string frame.content)
+  (* print_endline frame.content;
+   * get_all_holds () *)
+                  
