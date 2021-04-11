@@ -73,3 +73,10 @@
     border: 2px solid black;
     border-radius: 20px;
 }
+
+.tool {
+    background:lightgrey;    
+}
+.tool.selected {
+    background:white;    
+}

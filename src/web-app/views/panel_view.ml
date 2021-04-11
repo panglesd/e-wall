@@ -102,6 +102,14 @@ let make_main_panel_div current_panel_var current_holds_var =
      let$* current_holds = Lwd.get current_holds_var in
      let holds_div_list = List.map hold_in_panel_div (List.filter (fun hold -> Model.Hold.((Lwd.peek hold).panel) = current_panel) current_holds) in
      (* let on_click = add_hold_on_panel_callback current_holds_var current_panel current_holds in *)
+     let classes =
+       let open Panel_logic in
+       let$ tool = Lwd.get tool_var in
+       match tool with
+         Add -> (["selected";"tool"], ["tool"], ["tool"])
+       | Move -> (["tool"], ["selected";"tool"], ["tool"])
+       | Delete -> (["tool"], ["tool"], ["selected";"tool"])
+       in
      div
        ~a:[a_class (Lwd.pure ["main-panel"])]
        [
@@ -117,9 +125,15 @@ let make_main_panel_div current_panel_var current_holds_var =
                  ~alt:(Lwd.pure "current panel") ();
              ] @ holds_div_list);
          div ~a:[] [
-             div ~a:[a_onclick (Lwd.pure @@ Some(fun _e -> Lwd.set Panel_logic.tool_var Panel_logic.Add; false))] [txt (Lwd.pure "Add")];
-             div ~a:[a_onclick (Lwd.pure @@ Some(fun _e -> Lwd.set Panel_logic.tool_var Panel_logic.Move; false))] [txt (Lwd.pure "Move")];
-             div ~a:[a_onclick (Lwd.pure @@ Some(fun _e -> Lwd.set Panel_logic.tool_var Panel_logic.Delete; false))] [txt (Lwd.pure "Delete")];
+             div ~a:[a_class (Lwd.Infix.(classes >|= fun (a,_,_) -> a));
+                     a_onclick (Lwd.pure @@ Some(fun _e -> Lwd.set Panel_logic.tool_var Panel_logic.Add; false))]
+               [txt (Lwd.pure "Add")];
+             div ~a:[a_class (Lwd.Infix.(classes >|= fun (_,a,_) -> a));
+                 a_onclick (Lwd.pure @@ Some(fun _e -> Lwd.set Panel_logic.tool_var Panel_logic.Move; false))]
+               [txt (Lwd.pure "Move")];
+             div ~a:[a_class (Lwd.Infix.(classes >|= fun (_,_,a) -> a));
+                 a_onclick (Lwd.pure @@ Some(fun _e -> Lwd.set Panel_logic.tool_var Panel_logic.Delete; false))]
+               [txt (Lwd.pure "Delete")];
              input ~a:[a_input_type (Lwd.pure `Button); a_value (Lwd.pure "Valider les modifications");
                        a_onclick (Lwd.pure (Some (fun _e -> ignore @@ Webapp_libs.Request.send_new_holds (Logic.Main_logic.current_holds_var |> Lwd.peek |> List.map Lwd.peek); false)))
                ] ();
