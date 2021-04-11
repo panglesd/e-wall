@@ -17,12 +17,12 @@ let mouse_click_add : Tyxml_lwd.Xml.mouse_event_handler =
       let x2,y2 = Js_of_ocaml.Dom_html.eventAbsolutePosition e in
       match (Lwd.peek Main_logic.current_panel_var) with
         Some panel ->
-         let new_hold = Model.Hold.make ~id:"blibli" ~panel ~position:(x2-x,y2-y) ~size:10 ~name:"10" in
+         let new_hold = Model.Hold.make_rand_id ~panel ~position:(x2-x,y2-y) ~size:10 ~name:"10" in
          Lwd.set (Main_logic.current_holds_var) ((Lwd.var new_hold)::(Lwd.peek Main_logic.current_holds_var));
          false
       | None -> false  
     else begin
-        Printf.printf "bliblibli\n";
+        (* Printf.printf "bliblibli\n"; *)
         false end in
   Lwd.pure @@ Some f
 

@@ -21,7 +21,7 @@ let add_panel req =
   let open Lwt.Syntax in
   let open Opt_monad in
   let panel_id = Utils.get_rand_id () in
-  let* panel_map_list_opt, filenames = Utils.save_file ~prefix:panel_id ~folder:".ewall/img/panel-img" req in 
+  let* panel_map_list_opt, filenames = Server_utils.Utils.save_file ~prefix:panel_id ~folder:".ewall/img/panel-img" req in 
   let filename = match filenames with [] -> None | fn::_ -> Some fn in
   match filename with None -> callback req | Some filename ->
   let new_panel =

@@ -19,4 +19,14 @@ let make ~id ~panel (* ~polygone *) ~position ~size ~name =
     name;
   }
 
+let make_rand_id ~panel (* ~polygone *) ~position ~size ~name =
+  {
+    id = Utils.get_rand_id();
+    panel;
+    (* polygone : (int * int) list ; *)
+    position;
+    size;
+    name;
+  }
+
 let of_string s = s |> Yojson.Safe.from_string |> t_of_yojson
