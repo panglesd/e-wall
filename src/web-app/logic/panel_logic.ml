@@ -4,7 +4,7 @@ open Lwd_infix
 
 type tool = Add | Move | Delete
 let tool_var = Lwd.var Move
-let focused_var = Lwd.var None
+let focused_var = ref None
 
 let save_panel : (Js_of_ocaml.Dom_html.mouseEvent Js_of_ocaml.Js.t -> bool) Lwd.t =
   let f = fun _e ->
@@ -41,7 +41,7 @@ let mouse_click_add : Tyxml_lwd.Xml.mouse_event_handler =
       Printf.printf "on click, x, y and co are now %d %d %d %d\n" x y x2 y2;
       match (Lwd.peek Main_logic.current_panel_var) with
         Some panel ->
-         let new_hold = Model.Hold.make_rand_id ~panel ~position:((x2-x)*naturalWidth/img##.width,(y2-y)*naturalHeight/img##.height) ~size:10 ~name:"10" in
+         let new_hold = Model.Hold.make_rand_id ~panel ~position:(float (x2-x)*. float naturalWidth/.float img##.width,float (y2-y)*.float naturalHeight/. float img##.height) ~size:10 ~name:"10" in
          Lwd.set (Main_logic.current_holds_var) ((Lwd.var new_hold)::(Lwd.peek Main_logic.current_holds_var));
          false
       | None -> false  
@@ -66,24 +66,26 @@ let mouse_click_callback hold_var_opt =
                                                                               
                                                                               
 let mouse_move_move : Tyxml_lwd.Xml.mouse_event_handler =
-  let$ focused = Lwd.get focused_var in
-  match focused with
-    None -> 
-     None
-  | Some ((old_hold_var : Model.Hold.t Lwd.var),(x,y),(mx, my)) ->
-     Some (fun e ->
-         let old_hold = Lwd.peek old_hold_var in
-         let nmx, nmy = Js_of_ocaml.Dom_html.eventAbsolutePosition e in
-         let new_hold = Model.Hold.make
-                          ~id:old_hold.id
-                          ~panel:old_hold.panel
-                          ~position:(x+(nmx-mx), y+(nmy-my))
-                          ~size:old_hold.size
-                          ~name:old_hold.name
-         in
-         Lwd.set old_hold_var new_hold;
-         false
-       )
+  Lwd.pure @@ Some (fun e ->
+                  let focused = !focused_var in
+                  match focused with
+                    None -> 
+                     false
+                  | Some ((old_hold_var : Model.Hold.t Lwd.var),(x,y),(mx, my)) ->
+                     let old_hold = Lwd.peek old_hold_var in
+                     let nmx, nmy = Js_of_ocaml.Dom_html.eventAbsolutePosition e in
+                     let (r1, r2) = Webapp_libs.Utils.get_ratio () in
+                     print_endline "trying to move";
+                     let new_hold = Model.Hold.make
+                                      ~id:old_hold.id
+                                      ~panel:old_hold.panel
+                                      ~position:(x+.float ((nmx-mx)* r1)/.float r2, y+.float ((nmy-my)*r1)/. float r2)
+                                      ~size:old_hold.size
+                                      ~name:old_hold.name
+                     in
+                     Lwd.set old_hold_var new_hold;
+                     false
+                )
 
 let mouse_move_callback _hold_var_opt =
   let$* tool = Lwd.get tool_var in
@@ -93,11 +95,12 @@ let mouse_move_callback _hold_var_opt =
   | Delete -> Lwd.pure None
 
 let mouse_up_move : Tyxml_lwd.Xml.mouse_event_handler =
-  let$ focused = Lwd.get focused_var in
-  match focused with
-    None -> None
-  | Some _ ->
-     Some (fun _e -> Lwd.set focused_var None; false)
+  Lwd.pure @@ Some (fun _e ->
+      let focused = !focused_var in
+      match focused with
+        None -> false
+      | Some _ ->
+          focused_var := None; false)
 
 let mouse_up_callback _hold_var_opt = 
   let$* tool = Lwd.get tool_var in
@@ -111,7 +114,8 @@ let mouse_down_move hold_var =
     Some (fun e ->
         let xev,yev = Js_of_ocaml.Dom_html.eventAbsolutePosition e in
         let x,y = Model.Hold.((Lwd.peek hold_var).position) in
-        Lwd.set focused_var (Some (hold_var, (x, y), (xev,yev))); false)
+        focused_var := (Some (hold_var, (x, y), (xev,yev)));
+        false)
   
 let mouse_down_callback hold_var_opt =
   match hold_var_opt with
@@ -123,19 +127,20 @@ let mouse_down_callback hold_var_opt =
      | Add -> Lwd.pure None
      | Delete -> Lwd.pure None
 
-let mouse_leave_move hold_var =
-  Lwd.pure @@
-    Some (fun e ->
-        let xev,yev = Js_of_ocaml.Dom_html.eventAbsolutePosition e in
-        let x,y = Model.Hold.((Lwd.peek hold_var).position) in
-        Lwd.set focused_var (Some (hold_var, (x, y), (xev,yev))); false)
-  
-let mouse_leave_callback hold_var = 
-  let$* tool = Lwd.get tool_var in
-  match tool with
-    Move -> mouse_leave_move hold_var
-  | Add -> Lwd.pure None
-  | Delete -> Lwd.pure None
+(* TODO to use *)
+(* let mouse_leave_move hold_var =
+ *   Lwd.pure @@
+ *     Some (fun e ->
+ *         let xev,yev = Js_of_ocaml.Dom_html.eventAbsolutePosition e in
+ *         let x,y = Model.Hold.((Lwd.peek hold_var).position) in
+ *         Lwd.set focused_var (Some (hold_var, (x, y), (xev,yev))); false) *)
+
+(* let mouse_leave_callback hold_var = 
+ *   let$* tool = Lwd.get tool_var in
+ *   match tool with
+ *     Move -> mouse_leave_move hold_var
+ *   | Add -> Lwd.pure None
+ *   | Delete -> Lwd.pure None *)
 
                        (* let hold_mouseleave_callback = mouse_up_callback *)
                        (* let$ focused = Lwd.get focused_var in

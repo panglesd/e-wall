@@ -13,7 +13,7 @@ module Content = struct
   let t = record "t" (fun id panel position size name -> ({ id ; panel ; position ; size ; name}:t))
           |+ field "id" string (fun (t:t) -> t.id)
           |+ field "panel" Panel_db.Content.t (fun (t:t) -> t.panel)
-          |+ field "position" (pair int int) (fun (t:t) -> t.position)
+          |+ field "position" (pair float float) (fun (t:t) -> t.position)
           |+ field "size" int (fun (t:t) -> t.size)
           |+ field "name" string (fun (t:t) -> t.name)
           |> sealr

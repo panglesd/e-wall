@@ -2,7 +2,7 @@ type t = {
     id : string ;
     panel : Panel.t ;
     (* polygone : (int * int) list ; *)
-    position : int * int ;
+    position : float * float ;
     size : int ;
     name : string ;
   } [@@deriving yojson]
