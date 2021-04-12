@@ -42,7 +42,7 @@ let div_list_from_panel_list ?f panel_list =
 (* The "list of panels" div          *)
   
 let make_panel_list_div all_panels_var current_panel_var =
-  let update_div =  input ~a:[a_input_type (Lwd.pure `Button); a_onclick (Lwd.pure @@ Some (fun _ -> ignore @@ Logic.Main_logic.update_panel_list (); false))] () in
+  let update_div =  input ~a:[a_value (Lwd.pure "Update");a_input_type (Lwd.pure `Button); a_onclick (Lwd.pure @@ Some (fun _ -> ignore @@ Logic.Main_logic.update_panel_list (); false))] () in
   let$* all_panels = Lwd.get all_panels_var in
   let on_click panel = Some (fun _ev ->
     Lwd.set current_panel_var (Some panel); false) in

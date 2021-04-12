@@ -36,12 +36,13 @@
 
 .bottom-panel {
     background-color: green;
-    height: 100px;
+    height: 150px;
     display: flex;
     justify-content: center;
 }
 .bottom-panel > div {
     max-width: 150px;
+    text-align: center;
 }
 .bottom-panel img {
     width:100%;
@@ -63,6 +64,9 @@
 }
 
 .panel-hold-container {
+    display: flex;
+    flex-grow: 1;
+    justify-content: center;
     position:relative;
 }
 
