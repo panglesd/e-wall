@@ -63,7 +63,7 @@ let set_panel_list (panel_list:Model.Panel.t list) =
   )
 
 let update_panel_list () =
-  let+ all_panels = Request.get_all_panels () in
+  let* all_panels = Request.get_all_panels () in
   print_endline("got all panels!");
   Lwd.set all_panels_var all_panels;
   Lwd.set current_panel_var (Some (List.hd all_panels));

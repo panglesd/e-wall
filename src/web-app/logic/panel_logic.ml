@@ -23,9 +23,7 @@ let mouse_click_add : Tyxml_lwd.Xml.mouse_event_handler =
     let current_target = e##.currentTarget in
     if target = current_target then
       (* let relTarget = Js_of_ocaml.Js.Opt.to_option @@ Js_of_ocaml.Dom_html.eventRelatedTarget e in *)
-      let img = match Js_of_ocaml.Dom_html.(getElementById_coerce "main-panel-img" CoerceTo.img) with
-          None -> failwith "No main-panel-img"
-        | Some elem -> elem in
+      let img = Webapp_libs.Utils.get_img () in
       
       let naturalHeight, naturalWidth = match Js_of_ocaml.Js.Optdef.(
           to_option img##.naturalHeight,

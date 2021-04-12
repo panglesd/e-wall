@@ -151,9 +151,7 @@ let make_main_panel_div current_panel_var current_holds_var =
      let size =
        let$ loaded = Lwd.get Main_logic.loaded in
        if loaded then
-         let img = match Js_of_ocaml.Dom_html.(getElementById_coerce "main-panel-img" CoerceTo.img) with
-             None -> failwith "No main-panel-img"
-           | Some elem -> elem in
+         let img = Webapp_libs.Utils.get_img () in
          print_endline @@ "width:" ^ string_of_int(img##.width) ^ "px";
          "width:" ^ string_of_int(img##.width) ^ "px"
        else
