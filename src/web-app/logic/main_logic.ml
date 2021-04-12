@@ -22,6 +22,8 @@ type ui_state =
 | Viewing_Content
 
 let ui_state_var = Lwd.var Viewing_Content
+let loaded = Lwd.var false
+                 
 
 let make_callback ~editing_panel ~editing_route ~viewing_content hold_var_opt =
   let$* ui_state = Lwd.get ui_state_var in

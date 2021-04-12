@@ -69,6 +69,9 @@
     justify-content: center;
     position:relative;
 }
+.panel-hold-container-2 {
+    position:relative;
+}
 
 .hold {
     position:absolute;
@@ -82,5 +85,10 @@
     background:lightgrey;    
 }
 .tool.selected {
+    border: 1px solid red;
     background:white;    
+}
+
+#main-panel-img {
+    height: 100%;
 }

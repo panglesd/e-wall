@@ -6,7 +6,7 @@ type tool = Add | Move | Delete
 let tool_var = Lwd.var Move
 let focused_var = Lwd.var None
 
-let save_panel : Tyxml_lwd.Xml.mouse_event_handler =
+let save_panel : (Js_of_ocaml.Dom_html.mouseEvent Js_of_ocaml.Js.t -> bool) Lwd.t =
   let f = fun _e ->
     ignore @@ Webapp_libs.Request.send_new_holds (
                   Main_logic.current_holds_var
@@ -14,7 +14,7 @@ let save_panel : Tyxml_lwd.Xml.mouse_event_handler =
                   |> List.map Lwd.peek
                 );
     false in
-  Lwd.pure (Some f)
+  Lwd.pure f
                 
 let mouse_click_add : Tyxml_lwd.Xml.mouse_event_handler =
   let f = fun e ->
@@ -23,11 +23,27 @@ let mouse_click_add : Tyxml_lwd.Xml.mouse_event_handler =
     let current_target = e##.currentTarget in
     if target = current_target then
       (* let relTarget = Js_of_ocaml.Js.Opt.to_option @@ Js_of_ocaml.Dom_html.eventRelatedTarget e in *)
+      let img = match Js_of_ocaml.Dom_html.(getElementById_coerce "main-panel-img" CoerceTo.img) with
+          None -> failwith "No main-panel-img"
+        | Some elem -> elem in
+      
+      let naturalHeight, naturalWidth = match Js_of_ocaml.Js.Optdef.(
+          to_option img##.naturalHeight,
+          to_option img##.naturalWidth) with
+        | Some n1, Some n2 -> n1, n2
+        | _ -> 1,1 in
+      Printf.printf "Natural Height : %d \n" naturalHeight;
+      Printf.printf "Natural Width : %d \n" naturalWidth;
+      Printf.printf "Height : %d \n" img##.height;
+      Printf.printf "Width : %d \n" img##.width;
+      Printf.printf "Offset Left : %d \n" img##.offsetLeft;
+
       let x,y = Js_of_ocaml.Dom_html.elementClientPosition elem in
       let x2,y2 = Js_of_ocaml.Dom_html.eventAbsolutePosition e in
+      Printf.printf "on click, x, y and co are now %d %d %d %d\n" x y x2 y2;
       match (Lwd.peek Main_logic.current_panel_var) with
         Some panel ->
-         let new_hold = Model.Hold.make_rand_id ~panel ~position:(x2-x,y2-y) ~size:10 ~name:"10" in
+         let new_hold = Model.Hold.make_rand_id ~panel ~position:((x2-x)*naturalWidth/img##.width,(y2-y)*naturalHeight/img##.height) ~size:10 ~name:"10" in
          Lwd.set (Main_logic.current_holds_var) ((Lwd.var new_hold)::(Lwd.peek Main_logic.current_holds_var));
          false
       | None -> false  

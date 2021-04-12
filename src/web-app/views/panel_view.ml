@@ -10,7 +10,7 @@ open Logic
 (* A few functions to help testing *)
    
 let i = ref 0
-let new_panel ():Panel.t = {
+let _new_panel ():Panel.t = {
     id = string_of_int(!i);
     name = "panel numéro " ^ (string_of_int !i);
     filename = "filename.jpg"
@@ -75,6 +75,44 @@ let make_panel_list_div all_panels_var current_panel_var =
 
 
   
+let tool_div =
+     let classes =
+       let open Panel_logic in
+       let$ tool = Lwd.get tool_var in
+       match tool with
+         Add -> (["selected";"tool"], ["tool"], ["tool"])
+       | Move -> (["tool"], ["selected";"tool"], ["tool"])
+       | Delete -> (["tool"], ["tool"], ["selected";"tool"])
+     in
+     let$* ui_state = Lwd.get Main_logic.ui_state_var in
+     match ui_state with
+       Main_logic.Editing_Panel ->
+       div ~a:[a_class (Lwd.pure ["tools"])] [
+           div ~a:[a_class (Lwd.Infix.(classes >|= fun (a,_,_) -> a));
+                   a_onclick (Lwd.pure @@ Some(fun _e -> Lwd.set Panel_logic.tool_var Panel_logic.Add; false))]
+             [txt (Lwd.pure "Add")];
+           div ~a:[a_class (Lwd.Infix.(classes >|= fun (_,a,_) -> a));
+                   a_onclick (Lwd.pure @@ Some(fun _e -> Lwd.set Panel_logic.tool_var Panel_logic.Move; false))]
+             [txt (Lwd.pure "Move")];
+           div ~a:[a_class (Lwd.Infix.(classes >|= fun (_,_,a) -> a));
+                   a_onclick (Lwd.pure @@ Some(fun _e -> Lwd.set Panel_logic.tool_var Panel_logic.Delete; false))]
+             [txt (Lwd.pure "Delete")];
+           input ~a:[a_input_type (Lwd.pure `Button); a_value (Lwd.pure "Valider les modifications");
+                     a_onclick (
+                         let$ f = Panel_logic.save_panel in
+                         Some (fun e -> ignore @@ f e;
+                                        Lwd.set Main_logic.ui_state_var Main_logic.Viewing_Content;
+                                        false))
+             ] ();
+         ]
+     | _ ->
+        div ~a:[a_class (Lwd.pure ["tools"])] [
+            input ~a:[a_value (Lwd.pure "Modifier le panel");
+                      a_input_type (Lwd.pure `Button);
+                      a_onclick (Lwd.pure @@ Some (fun _e ->
+                                                 Main_logic.(Lwd.set ui_state_var Editing_Panel);
+                                                 false))] ()
+          ]
 
 
   
@@ -86,17 +124,14 @@ let make_main_panel_div current_panel_var current_holds_var =
   match current_panel_opt with
     None -> div ~a:[a_class (Lwd.pure ["main-panel"])] []
   | Some (current_panel) ->
-     let$* current_holds = Lwd.get current_holds_var in
-     let holds_div_list = List.map Hold_view.hold_in_panel_div (List.filter (fun hold -> Model.Hold.((Lwd.peek hold).panel) = current_panel) current_holds) in
+     let$* holds_div_list =
+       (* let$* loaded = Lwd.get loaded in
+        * if not loaded then
+        *   Lwd.pure []
+        * else *)
+         let$ current_holds = Lwd.get current_holds_var in
+         List.map Hold_view.hold_in_panel_div (List.filter (fun hold -> Model.Hold.((Lwd.peek hold).panel) = current_panel) current_holds) in
      (* let on_click = add_hold_on_panel_callback current_holds_var current_panel current_holds in *)
-     let classes =
-       let open Panel_logic in
-       let$ tool = Lwd.get tool_var in
-       match tool with
-         Add -> (["selected";"tool"], ["tool"], ["tool"])
-       | Move -> (["tool"], ["selected";"tool"], ["tool"])
-       | Delete -> (["tool"], ["tool"], ["selected";"tool"])
-     in
      let click_callback = Main_logic.make_callback
                             ~editing_panel:Panel_logic.mouse_click_callback
                             ~editing_route:Panel_logic.mouse_click_callback
@@ -113,35 +148,36 @@ let make_main_panel_div current_panel_var current_holds_var =
                                 ~editing_panel:Panel_logic.mouse_down_callback
                                 ~editing_route:Panel_logic.mouse_down_callback
                                 ~viewing_content:(fun _var -> Lwd.pure None) None in
+     let size =
+       let$ loaded = Lwd.get Main_logic.loaded in
+       if loaded then
+         let img = match Js_of_ocaml.Dom_html.(getElementById_coerce "main-panel-img" CoerceTo.img) with
+             None -> failwith "No main-panel-img"
+           | Some elem -> elem in
+         print_endline @@ "width:" ^ string_of_int(img##.width) ^ "px";
+         "width:" ^ string_of_int(img##.width) ^ "px"
+       else
+         "width: 0px" in
      div
        ~a:[a_class (Lwd.pure ["main-panel"])]
        [
          (* input ~a:[a_input_type (Lwd.pure `Button); a_onclick (Lwd.pure @@ Some (fun _ -> ignore @@ Logic.update_panel_list (); false))] (); *)
          div ~a:[a_class (Lwd.pure ["panel-hold-container"]) (* ; a_onclick (Lwd.pure @@ Some on_click) *)] 
            ([
-               img ~a:[
-                   a_onclick click_callback;
-                   a_onmouseup mouseup_callback;
-                   a_onmousemove mousemove_callback;
-                   a_onmousemove mousedown_callback;
-                 ]
-                 ~src:(Lwd.pure ("img/panel-img/"^Model.Panel.(current_panel.filename)))
-                 ~alt:(Lwd.pure "current panel") ();
-             ] @ holds_div_list);
-         div ~a:[] [
-             div ~a:[a_class (Lwd.Infix.(classes >|= fun (a,_,_) -> a));
-                     a_onclick (Lwd.pure @@ Some(fun _e -> Lwd.set Panel_logic.tool_var Panel_logic.Add; false))]
-               [txt (Lwd.pure "Add")];
-             div ~a:[a_class (Lwd.Infix.(classes >|= fun (_,a,_) -> a));
-                 a_onclick (Lwd.pure @@ Some(fun _e -> Lwd.set Panel_logic.tool_var Panel_logic.Move; false))]
-               [txt (Lwd.pure "Move")];
-             div ~a:[a_class (Lwd.Infix.(classes >|= fun (_,_,a) -> a));
-                 a_onclick (Lwd.pure @@ Some(fun _e -> Lwd.set Panel_logic.tool_var Panel_logic.Delete; false))]
-               [txt (Lwd.pure "Delete")];
-             input ~a:[a_input_type (Lwd.pure `Button); a_value (Lwd.pure "Valider les modifications");
-                       a_onclick Panel_logic.save_panel
-               ] ();
-           ]
+               div ~a:[a_style size; a_class (Lwd.pure ["panel-hold-container-2"])] ([
+                   img ~a:[
+                       a_id (Lwd.pure "main-panel-img");
+                       a_onclick click_callback;
+                       a_onmouseup mouseup_callback;
+                       a_onmousemove mousemove_callback;
+                       a_onmousemove mousedown_callback;
+                       a_onload (Lwd.pure @@ Some (fun _e -> Lwd.set Main_logic.loaded true; false))
+                     ]
+                     ~src:(Lwd.pure ("img/panel-img/"^Model.Panel.(current_panel.filename)))
+                     ~alt:(Lwd.pure "current panel") ();
+                 ] @ holds_div_list)
+             ] );
+         tool_div
        ]
     
 (* The "add a panel" form            *)

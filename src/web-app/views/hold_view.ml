@@ -14,6 +14,7 @@ let make (hold:Hold.t) =
 
 let hold_in_panel_div (hold_var:Model.Hold.t Lwd.var) =
   let$* hold = Lwd.get hold_var in
+  let$* _loaded = Lwd.get Main_logic.loaded in
   let click_callback = Main_logic.make_callback ~editing_panel:Panel_logic.mouse_click_callback
                          ~editing_route:Route_logic.mouse_click_callback
                          ~viewing_content:(fun _var -> Lwd.pure None) (Some hold_var)
@@ -21,14 +22,25 @@ let hold_in_panel_div (hold_var:Model.Hold.t Lwd.var) =
                              ~editing_route:Panel_logic.mouse_click_callback
                              ~viewing_content:(fun _var -> Lwd.pure None) (Some hold_var)
   and mouseup_callback = Main_logic.make_callback ~editing_panel:Panel_logic.mouse_up_callback
-                             ~editing_route:Panel_logic.mouse_click_callback
-                             ~viewing_content:(fun _var -> Lwd.pure None) (Some hold_var)
+                           ~editing_route:Panel_logic.mouse_click_callback
+                           ~viewing_content:(fun _var -> Lwd.pure None) (Some hold_var)
   and mousedown_callback = Main_logic.make_callback ~editing_panel:Panel_logic.mouse_down_callback
                              ~editing_route:Panel_logic.mouse_click_callback
                              ~viewing_content:(fun _var -> Lwd.pure None) (Some hold_var) in
-  let (x,y) = hold.position in
+  let (x0,y0) = hold.position in
+  Printf.printf "x0, y0 are now %d %d\n" x0 y0;
+  let img = match Js_of_ocaml.Dom_html.(getElementById_coerce "main-panel-img" CoerceTo.img) with
+      None -> failwith "No main-panel-img"
+    | Some elem -> elem in
+  let naturalHeight, naturalWidth = match Js_of_ocaml.Js.Optdef.(
+      to_option img##.naturalHeight,
+      to_option img##.naturalWidth) with
+    | Some n1, Some n2 -> n1, n2
+    | _ -> 1,1 in
+  let y = y0*img##.height/naturalHeight
+  and x = x0*img##.width/naturalWidth in
   div ~a:[
-      a_style (Lwd.pure @@ Printf.sprintf "left:%dpx; top: %dpx" (x-10) (y-10));
+      a_style (Lwd.pure @@ Printf.sprintf "left:%dpx; top: %dpx" (x-10+0*img##.offsetLeft) (y-10));
       a_class (Lwd.pure [hold.name; "hold"]);
       (* a_onclick (Lwd.pure @@ move_hold hold_var); *)
       a_onmousedown mousedown_callback;
@@ -36,3 +48,4 @@ let hold_in_panel_div (hold_var:Model.Hold.t Lwd.var) =
       a_onmousemove mousemove_callback;
       a_onmouseup mouseup_callback;
     ] []
+    
