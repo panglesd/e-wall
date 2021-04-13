@@ -43,11 +43,30 @@ let div_list_from_panel_list ?f panel_list =
   
 let make_panel_list_div all_panels_var current_panel_var =
   let update_div =  input ~a:[a_value (Lwd.pure "Update");a_input_type (Lwd.pure `Button); a_onclick (Lwd.pure @@ Some (fun _ -> ignore @@ Logic.Main_logic.update_panel_list (); false))] () in
+  (* The "add a panel" form            *)
+
+  let panel_form =
+    (* let$* panel_form = Lwd.get panel_form_var in *)
+    div ~a:[a_class (Lwd.pure ["panel-form"])] [
+        form ~a:[a_action (Lwd.pure "panel");
+                 a_method (Lwd.pure `Post);
+                 a_enctype (Lwd.pure "multipart/form-data")] [
+            input ~a:[a_input_type (Lwd.pure `Text);
+                      a_name (Lwd.pure "panel_name");
+                      a_placeholder (Lwd.pure "Nom du panneau")] ();
+            (* txt (Lwd.pure "Fichier : "); *)
+            input ~a:[a_input_type (Lwd.pure `File); a_name (Lwd.pure "panel_file")] ();
+            (* txt (Lwd.pure "Soumettre : "); *)
+            input ~a:[a_input_type (Lwd.pure `Submit); a_name (Lwd.pure "new-panel"); a_value (Lwd.pure "Ajouter")] ();
+          ]
+      ] in
+  
+  
   let$* all_panels = Lwd.get all_panels_var in
   let on_click panel = Some (fun _ev ->
     Lwd.set current_panel_var (Some panel); false) in
   let l = List.map (div_of_panel ~on_click) all_panels in
-  div ~a:[a_class (Lwd.pure ["bottom-panel"])] (update_div::l)
+  div ~a:[a_class (Lwd.pure ["bottom-panel"])] (update_div::l@[panel_form])
 
 (* The "main panel" div              *)
 
@@ -120,6 +139,7 @@ let tool_div =
 
   
 let make_main_panel_div current_panel_var current_holds_var =
+  Lwd.set Main_logic.loaded false;
   let$* current_panel_opt = Lwd.get current_panel_var in
   match current_panel_opt with
     None -> div ~a:[a_class (Lwd.pure ["main-panel"])] []
@@ -178,18 +198,3 @@ let make_main_panel_div current_panel_var current_holds_var =
          tool_div
        ]
     
-(* The "add a panel" form            *)
-
-let make_panel_form ()(* panel_form_var *) =
-  (* let$* panel_form = Lwd.get panel_form_var in *)
-  div ~a:[a_class (Lwd.pure ["panel-form"(* ; match panel_form with Some () -> "visible" | None -> "invisible" *)])] [
-      form ~a:[a_action (Lwd.pure "panel"); a_method (Lwd.pure `Post); a_enctype (Lwd.pure "multipart/form-data")] [
-          txt (Lwd.pure "Nom : ");
-          input ~a:[a_input_type (Lwd.pure `Text); a_name (Lwd.pure "panel_name")] ();
-          txt (Lwd.pure "Fichier : ");
-          input ~a:[a_input_type (Lwd.pure `File); a_name (Lwd.pure "panel_file")] ();
-          txt (Lwd.pure "Soumettre : ");
-          input ~a:[a_input_type (Lwd.pure `Submit); a_name (Lwd.pure "new-panel")] ();
-        ]
-    ]
-  

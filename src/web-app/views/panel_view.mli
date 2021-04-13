@@ -18,5 +18,3 @@ val make_main_panel_div : Panel.t option Lwd.var ->
                           Hold.t Lwd.var list Lwd.var ->
                           [> Html_types.div ] Tyxml_lwd.node Lwd_seq.t Lwd.t
 
-
-val make_panel_form : unit -> [> Html_types.div ] elt

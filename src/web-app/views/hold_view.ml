@@ -14,7 +14,7 @@ let make (hold:Hold.t) =
 
 let hold_in_panel_div (hold_var:Model.Hold.t Lwd.var) =
   let$* hold = Lwd.get hold_var in
-  let$* _loaded = Lwd.get Main_logic.loaded in
+  let$* loaded = Lwd.get Main_logic.loaded in
   let click_callback = Main_logic.make_callback
                          ~editing_panel:Panel_logic.mouse_click_callback
                          ~editing_route:Route_logic.mouse_click_callback
@@ -34,16 +34,15 @@ let hold_in_panel_div (hold_var:Model.Hold.t Lwd.var) =
   let (x0,y0) = hold.position in
   Printf.printf "x0, y0 are now %f %f\n" x0 y0;
   let img = Webapp_libs.Utils.get_img () in
-  let naturalHeight, naturalWidth = match Js_of_ocaml.Js.Optdef.(
-      to_option img##.naturalHeight,
-      to_option img##.naturalWidth) with
-    | Some n1, Some n2 -> n1, n2
-    | _ -> 1,1 in
+  let ready,naturalHeight, naturalWidth = match Js_of_ocaml.Js.Optdef.(
+      to_option img##.naturalHeight, to_option img##.naturalWidth) with
+    | Some n1, Some n2 -> true, n1, n2
+    | _ -> false,1,1 in
   let y = y0*.float img##.height /. float naturalHeight
   and x = x0*.float img##.width /. float naturalWidth in
   div ~a:[
       a_style (Lwd.pure @@ Printf.sprintf "left:%dpx; top: %dpx" (int_of_float x-10) (int_of_float y-10));
-      a_class (Lwd.pure [hold.name; "hold"]);
+      a_class (Lwd.pure @@ if loaded && ready then ["hold"] else []);
       (* a_onclick (Lwd.pure @@ move_hold hold_var); *)
       a_onmousedown mousedown_callback;
       a_onclick click_callback;
