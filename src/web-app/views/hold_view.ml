@@ -17,7 +17,7 @@ let hold_in_panel_div (hold_var:Model.Hold.t Lwd.var) =
   let$* loaded = Lwd.get Main_logic.loaded in
   let click_callback = Main_logic.make_callback
                          ~editing_panel:Panel_logic.mouse_click_callback
-                         ~editing_route:Route_logic.mouse_click_callback
+                         ~editing_route:(fun _var -> Lwd.pure None)
                          ~viewing_content:(fun _var -> Lwd.pure None) (Some hold_var)
   and mousemove_callback = Main_logic.make_callback
                              ~editing_panel:Panel_logic.mouse_move_callback

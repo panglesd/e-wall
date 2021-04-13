@@ -15,6 +15,17 @@ let save_panel : (Js_of_ocaml.Dom_html.mouseEvent Js_of_ocaml.Js.t -> bool) Lwd.
                 );
     false in
   Lwd.pure f
+
+let delete_panel : (Js_of_ocaml.Dom_html.mouseEvent Js_of_ocaml.Js.t -> bool) Lwd.t =
+  let f = fun _e ->
+    let open Opt_monad in
+    let _ =
+      let open Lwt.Syntax in
+      let= panel = Main_logic.current_panel_var |> Lwd.peek in
+      let+ panel_list = Webapp_libs.Request.delete_panel panel in
+      Main_logic.set_panel_list panel_list in
+    false in
+  Lwd.pure f
                 
 let mouse_click_add : Tyxml_lwd.Xml.mouse_event_handler =
   let f = fun e ->
@@ -61,7 +72,7 @@ let mouse_click_callback hold_var_opt =
   let$* tool = Lwd.get tool_var in
   match tool with
     Move -> Lwd.pure None
-  | Add -> mouse_click_add
+  | Add -> begin match hold_var_opt with Some _hold_var -> Lwd.pure None | None -> mouse_click_add end
   | Delete -> match hold_var_opt with None -> Lwd.pure None | Some hold_var ->  mouse_click_remove hold_var
                                                                               
                                                                               

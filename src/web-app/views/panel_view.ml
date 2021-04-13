@@ -42,7 +42,7 @@ let div_list_from_panel_list ?f panel_list =
 (* The "list of panels" div          *)
   
 let make_panel_list_div all_panels_var current_panel_var =
-  let update_div =  input ~a:[a_value (Lwd.pure "Update");a_input_type (Lwd.pure `Button); a_onclick (Lwd.pure @@ Some (fun _ -> ignore @@ Logic.Main_logic.update_panel_list (); false))] () in
+  (* let update_div =  input ~a:[a_value (Lwd.pure "Update");a_input_type (Lwd.pure `Button); a_onclick (Lwd.pure @@ Some (fun _ -> ignore @@ Logic.Main_logic.update_panel_list (); false))] () in *)
   (* The "add a panel" form            *)
 
   let panel_form =
@@ -66,7 +66,7 @@ let make_panel_list_div all_panels_var current_panel_var =
   let on_click panel = Some (fun _ev ->
     Lwd.set current_panel_var (Some panel); false) in
   let l = List.map (div_of_panel ~on_click) all_panels in
-  div ~a:[a_class (Lwd.pure ["bottom-panel"])] (update_div::l@[panel_form])
+  div ~a:[a_class (Lwd.pure ["bottom-panel"])] ((* update_div:: *)l@[panel_form])
 
 (* The "main panel" div              *)
 
@@ -106,24 +106,32 @@ let tool_div =
      let$* ui_state = Lwd.get Main_logic.ui_state_var in
      match ui_state with
        Main_logic.Editing_Panel ->
-       div ~a:[a_class (Lwd.pure ["tools"])] [
-           div ~a:[a_class (Lwd.Infix.(classes >|= fun (a,_,_) -> a));
-                   a_onclick (Lwd.pure @@ Some(fun _e -> Lwd.set Panel_logic.tool_var Panel_logic.Add; false))]
-             [txt (Lwd.pure "Add")];
-           div ~a:[a_class (Lwd.Infix.(classes >|= fun (_,a,_) -> a));
-                   a_onclick (Lwd.pure @@ Some(fun _e -> Lwd.set Panel_logic.tool_var Panel_logic.Move; false))]
-             [txt (Lwd.pure "Move")];
-           div ~a:[a_class (Lwd.Infix.(classes >|= fun (_,_,a) -> a));
-                   a_onclick (Lwd.pure @@ Some(fun _e -> Lwd.set Panel_logic.tool_var Panel_logic.Delete; false))]
-             [txt (Lwd.pure "Delete")];
-           input ~a:[a_input_type (Lwd.pure `Button); a_value (Lwd.pure "Valider les modifications");
-                     a_onclick (
-                         let$ f = Panel_logic.save_panel in
-                         Some (fun e -> ignore @@ f e;
-                                        Lwd.set Main_logic.ui_state_var Main_logic.Viewing_Content;
-                                        false))
-             ] ();
-         ]
+        div ~a:[a_class (Lwd.pure ["tools"])] [
+            div ~a:[a_class (Lwd.Infix.(classes >|= fun (a,_,_) -> a));
+                    a_onclick (Lwd.pure @@ Some(fun _e -> Lwd.set Panel_logic.tool_var Panel_logic.Add; false))]
+              [txt (Lwd.pure "Add")];
+            div ~a:[a_class (Lwd.Infix.(classes >|= fun (_,a,_) -> a));
+                    a_onclick (Lwd.pure @@ Some(fun _e -> Lwd.set Panel_logic.tool_var Panel_logic.Move; false))]
+              [txt (Lwd.pure "Move")];
+            div ~a:[a_class (Lwd.Infix.(classes >|= fun (_,_,a) -> a));
+                    a_onclick (Lwd.pure @@ Some(fun _e -> Lwd.set Panel_logic.tool_var Panel_logic.Delete; false))]
+              [txt (Lwd.pure "Delete")];
+            input ~a:[a_input_type (Lwd.pure `Button); a_value (Lwd.pure "Valider les modifications");
+                      a_onclick (
+                          let$ f = Panel_logic.save_panel in
+                          Some (fun e -> ignore @@ f e;
+                                         Lwd.set Main_logic.ui_state_var Main_logic.Viewing_Content;
+                                         false))
+              ] ();
+            br();
+            input ~a:[a_input_type (Lwd.pure `Button); a_value (Lwd.pure "Supprimer le panneau");
+                      a_onclick (
+                          let$ f = Panel_logic.delete_panel in
+                          Some (fun e -> ignore @@ f e;
+                                         Lwd.set Main_logic.ui_state_var Main_logic.Viewing_Content;
+                                         false))
+              ] ();
+          ]
      | _ ->
         div ~a:[a_class (Lwd.pure ["tools"])] [
             input ~a:[a_value (Lwd.pure "Modifier le panel");

@@ -41,6 +41,12 @@ let get ~id =
   get_master () >>= fun t ->
   Store.get t [id]
 
+let delete panel =
+  let open Model.Panel in
+  get_master () >>= fun t ->
+  Store.remove ~info:(info "My first commit") t [panel.id]
+
+  
 let get_all () =
   get_master () >>= fun t ->
   let+ tree = Store.list t [] in

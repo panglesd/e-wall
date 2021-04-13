@@ -37,3 +37,20 @@ let add_panel req =
      print_string @@ Model.Panel.pp new_panel;flush_all();
      let* () = Db__Panel_db.add ~panel:new_panel in
      callback req
+
+let delete_panel req =
+  let callback = get_all_panels in
+  let open Lwt.Syntax in
+  let open Opt_monad in
+  let* _result =
+    let**+ panel_to_delete_string = Request.urlencoded "panel_to_delete" req in
+    panel_to_delete_string |> Yojson.Safe.from_string |> Model.Panel.t_of_yojson
+  in
+  match _result with
+    Some panel ->
+     let* _ = Db__Panel_db.delete panel in
+     Printf.printf "Some panel to remove\n";
+     callback req
+  | None ->
+     Printf.printf "No panel to remove\n";
+     callback req
