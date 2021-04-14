@@ -30,3 +30,10 @@ let make_rand_id ~panel (* ~polygone *) ~position ~size ~name =
   }
 
 let of_string s = s |> Yojson.Safe.from_string |> t_of_yojson
+
+let set_name hold name =
+  make ~id:hold.id
+    ~panel:hold.panel
+    ~position:hold.position
+    ~size:hold.size
+    ~name

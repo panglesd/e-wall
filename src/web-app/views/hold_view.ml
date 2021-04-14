@@ -2,18 +2,40 @@ open Model
 open Tyxml_lwd.Html
 open Lwd_infix
 open Logic
-   
-let make (hold:Hold.t Lwd.var) =
-  let$* hold = Lwd.get hold in
+
+let make (hold_var:Hold.t Lwd.var) =
+  let$* hold = Lwd.get hold_var in
   let$* ui_state = Lwd.get Main_logic.ui_state_var in
   match ui_state with
   |  Main_logic.Editing_Panel ->
-     let panel_string = hold.panel.name in 
-     div ~a:[a_class (Lwd.pure ["hold-info"])] [
-         img ~src:(Lwd.pure "rien") ~alt:(Lwd.pure "alt")();
-         div ~a:[a_class (Lwd.pure ["hold-panel-name"])] [txt (Lwd.pure panel_string)];
-         input ~a:[a_class (Lwd.pure ["hold-name"]); a_input_type (Lwd.pure `Text); a_value (Lwd.pure hold.name)] ();
-       ] 
+      let _panel_string = hold.panel.name in
+      let (x,y) = hold.position |> fun (x,y) -> (int_of_float x, int_of_float y) in
+      div ~a:[a_class (Lwd.pure ["hold-info"])] [
+          div ~a:[a_class (Lwd.pure ["round-hold-container"])] [
+              img ~a:[a_style (Lwd.pure @@ Printf.sprintf "position:relative; left:%dpx; top: %dpx" (20-x) (20-y))] ~src:(Lwd.pure @@ "img/panel-img/" ^ (hold.panel.filename)) ~alt:(Lwd.pure "alt")()
+            ];
+         (* div ~a:[a_class (Lwd.pure ["hold-panel-name"])] [txt (Lwd.pure panel_string)]; *)
+          input ~a:[
+              a_class (Lwd.pure ["hold-name"]);
+              a_input_type (Lwd.pure `Text);
+              a_value (Lwd.pure hold.name);
+              a_onchange (Lwd.pure @@
+                            Some (fun e ->
+                                let target_js_opt = e##.currentTarget in
+                                let target_opt = Js_of_ocaml.Js.Opt.to_option target_js_opt in
+                                match target_opt with
+                                  None -> false
+                                | Some target ->
+                                   match  Js_of_ocaml.Js.Opt.to_option @@ Js_of_ocaml.Dom_html.CoerceTo.input target  with
+                                     None -> false
+                                   | Some input_target ->
+                                      let input_value = Js_of_ocaml.Js.to_string input_target##.value in
+                                      Lwd.set hold_var (Model.Hold.set_name hold input_value);
+                                      false
+                              )
+                )
+            ] ()
+        ] 
   | Main_logic.Editing_Route 
   | Main_logic.Viewing_Route_List
   | Main_logic.Viewing_Route  ->
