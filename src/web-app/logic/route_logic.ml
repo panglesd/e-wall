@@ -13,7 +13,7 @@ let create_route_callback : Tyxml_lwd.Xml.mouse_event_handler =
 let close_route_callback : Tyxml_lwd.Xml.mouse_event_handler =
   let f = fun _ ->
     Main_logic.set_current_route None;
-    Lwd.set Main_logic.ui_state_var Main_logic.Viewing_Content;
+    Lwd.set Main_logic.ui_state_var Main_logic.Viewing_Route_List;
     false in
   Lwd.pure @@ Some f
 

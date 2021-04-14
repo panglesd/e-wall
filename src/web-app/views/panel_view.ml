@@ -120,7 +120,7 @@ let tool_div =
                       a_onclick (
                           let$ f = Panel_logic.save_panel in
                           Some (fun e -> ignore @@ f e;
-                                         Lwd.set Main_logic.ui_state_var Main_logic.Viewing_Content;
+                                         Lwd.set Main_logic.ui_state_var Main_logic.Viewing_Route_List;
                                          false))
               ] ();
             br();
@@ -128,11 +128,11 @@ let tool_div =
                       a_onclick (
                           let$ f = Panel_logic.delete_panel in
                           Some (fun e -> ignore @@ f e;
-                                         Lwd.set Main_logic.ui_state_var Main_logic.Viewing_Content;
+                                         Lwd.set Main_logic.ui_state_var Main_logic.Viewing_Route_List;
                                          false))
               ] ();
           ]
-     | _ ->
+      | Main_logic.Viewing_Route_List  ->
         div ~a:[a_class (Lwd.pure ["tools"])] [
             input ~a:[a_value (Lwd.pure "Modifier le panel");
                       a_input_type (Lwd.pure `Button);
@@ -140,7 +140,7 @@ let tool_div =
                                                  Main_logic.(Lwd.set ui_state_var Editing_Panel);
                                                  false))] ()
           ]
-
+      | Main_logic.Viewing_Route | Main_logic.Editing_Route -> div ~a:[] []
 
   
     
@@ -157,25 +157,29 @@ let make_main_panel_div current_panel_var current_holds_var =
         * if not loaded then
         *   Lwd.pure []
         * else *)
-         let$ current_holds = Lwd.get current_holds_var in
-         List.map Hold_view.hold_in_panel_div (List.filter (fun hold -> Model.Hold.((Lwd.peek hold).panel) = current_panel) current_holds) in
+       let$ current_holds = Lwd.get current_holds_var in
+       List.map Hold_view.hold_in_panel_div (List.filter (fun hold -> Model.Hold.((Lwd.peek hold).panel) = current_panel) current_holds) in
      (* let on_click = add_hold_on_panel_callback current_holds_var current_panel current_holds in *)
      let click_callback = Main_logic.make_callback
                             ~editing_panel:Panel_logic.mouse_click_callback
                             ~editing_route:Panel_logic.mouse_click_callback
-                            ~viewing_content:(fun _var -> Lwd.pure None) None
+                            ~viewing_route_list:(fun _var -> Lwd.pure None)
+                            ~viewing_route:(fun _var -> Lwd.pure None) None
      and mousemove_callback = Main_logic.make_callback
                                 ~editing_panel:Panel_logic.mouse_move_callback
                                 ~editing_route:Panel_logic.mouse_move_callback
-                                ~viewing_content:(fun _var -> Lwd.pure None) None
+                                ~viewing_route_list:(fun _var -> Lwd.pure None)
+                                ~viewing_route:(fun _var -> Lwd.pure None) None
      and mouseup_callback = Main_logic.make_callback
                               ~editing_panel:Panel_logic.mouse_up_callback
                               ~editing_route:Panel_logic.mouse_up_callback
-                              ~viewing_content:(fun _var -> Lwd.pure None) None
+                              ~viewing_route_list:(fun _var -> Lwd.pure None)
+                              ~viewing_route:(fun _var -> Lwd.pure None) None
      and mousedown_callback = Main_logic.make_callback
                                 ~editing_panel:Panel_logic.mouse_down_callback
                                 ~editing_route:Panel_logic.mouse_down_callback
-                                ~viewing_content:(fun _var -> Lwd.pure None) None in
+                                ~viewing_route_list:(fun _var -> Lwd.pure None)
+                                ~viewing_route:(fun _var -> Lwd.pure None) None in
      let size =
        let$ loaded = Lwd.get Main_logic.loaded in
        if loaded then

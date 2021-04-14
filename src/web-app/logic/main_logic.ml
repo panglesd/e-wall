@@ -19,18 +19,20 @@ let current_holds_var = Lwd.var @@ []
 type ui_state =
   Editing_Panel
 | Editing_Route
-| Viewing_Content
+| Viewing_Route_List
+| Viewing_Route
 
-let ui_state_var = Lwd.var Viewing_Content
+let ui_state_var = Lwd.var Viewing_Route_List
 let loaded = Lwd.var false
                  
 
-let make_callback ~editing_panel ~editing_route ~viewing_content hold_var_opt =
+let make_callback ~editing_panel ~editing_route ~viewing_route ~viewing_route_list hold_var_opt =
   let$* ui_state = Lwd.get ui_state_var in
   match ui_state with
     Editing_Panel -> editing_panel hold_var_opt
   | Editing_Route -> editing_route hold_var_opt
-  | Viewing_Content -> viewing_content hold_var_opt
+  | Viewing_Route_List -> viewing_route_list hold_var_opt
+  | Viewing_Route -> viewing_route hold_var_opt
 
                  
 (** Global state variables, getters and setters  *)

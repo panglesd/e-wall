@@ -3,13 +3,26 @@ open Tyxml_lwd.Html
 open Lwd_infix
 open Logic
    
-let make (hold:Hold.t) = 
-  let panel_string = hold.panel.name in 
-  div ~a:[a_class (Lwd.pure ["hold-info"])] [
-      img ~src:(Lwd.pure "rien") ~alt:(Lwd.pure "alt")();
-      div ~a:[a_class (Lwd.pure ["hold-panel-name"])] [txt (Lwd.pure panel_string)];
-      div ~a:[a_class (Lwd.pure ["hold-name"])] [txt (Lwd.pure hold.name)];
-    ] 
+let make (hold:Hold.t Lwd.var) =
+  let$* hold = Lwd.get hold in
+  let$* ui_state = Lwd.get Main_logic.ui_state_var in
+  match ui_state with
+  |  Main_logic.Editing_Panel ->
+     let panel_string = hold.panel.name in 
+     div ~a:[a_class (Lwd.pure ["hold-info"])] [
+         img ~src:(Lwd.pure "rien") ~alt:(Lwd.pure "alt")();
+         div ~a:[a_class (Lwd.pure ["hold-panel-name"])] [txt (Lwd.pure panel_string)];
+         input ~a:[a_class (Lwd.pure ["hold-name"]); a_input_type (Lwd.pure `Text); a_value (Lwd.pure hold.name)] ();
+       ] 
+  | Main_logic.Editing_Route 
+  | Main_logic.Viewing_Route_List
+  | Main_logic.Viewing_Route  ->
+     let panel_string = hold.panel.name in 
+     div ~a:[a_class (Lwd.pure ["hold-info"])] [
+         img ~src:(Lwd.pure "rien") ~alt:(Lwd.pure "alt")();
+         div ~a:[a_class (Lwd.pure ["hold-panel-name"])] [txt (Lwd.pure panel_string)];
+         div ~a:[a_class (Lwd.pure ["hold-name"])] [txt (Lwd.pure hold.name)];
+       ] 
 
 
 let hold_in_panel_div (hold_var:Model.Hold.t Lwd.var) =
@@ -18,19 +31,23 @@ let hold_in_panel_div (hold_var:Model.Hold.t Lwd.var) =
   let click_callback = Main_logic.make_callback
                          ~editing_panel:Panel_logic.mouse_click_callback
                          ~editing_route:Route_logic.mouse_click_callback
-                         ~viewing_content:(fun _var -> Lwd.pure None) (Some hold_var)
+                         ~viewing_route_list:(fun _var -> Lwd.pure None)
+                         ~viewing_route:(fun _var -> Lwd.pure None) (Some hold_var)
   and mousemove_callback = Main_logic.make_callback
                              ~editing_panel:Panel_logic.mouse_move_callback
                              ~editing_route:(fun _var -> Lwd.pure None)
-                             ~viewing_content:(fun _var -> Lwd.pure None) (Some hold_var)
+                             ~viewing_route:(fun _var -> Lwd.pure None)
+                             ~viewing_route_list:(fun _var -> Lwd.pure None) (Some hold_var)
   and mouseup_callback = Main_logic.make_callback
                            ~editing_panel:Panel_logic.mouse_up_callback
                            ~editing_route:Panel_logic.mouse_click_callback
-                           ~viewing_content:(fun _var -> Lwd.pure None) (Some hold_var)
+                           ~viewing_route:(fun _var -> Lwd.pure None)
+                           ~viewing_route_list:(fun _var -> Lwd.pure None) (Some hold_var)
   and mousedown_callback = Main_logic.make_callback
                              ~editing_panel:Panel_logic.mouse_down_callback
                              ~editing_route:(fun _var -> Lwd.pure None)
-                             ~viewing_content:(fun _var -> Lwd.pure None) (Some hold_var) in
+                             ~viewing_route:(fun _var -> Lwd.pure None)
+                             ~viewing_route_list:(fun _var -> Lwd.pure None) (Some hold_var) in
   let (x0,y0) = hold.position in
   Printf.printf "x0, y0 are now %f %f\n" x0 y0;
   let img = Webapp_libs.Utils.get_img () in
@@ -50,3 +67,14 @@ let hold_in_panel_div (hold_var:Model.Hold.t Lwd.var) =
       a_onmouseup mouseup_callback;
     ] []
     
+
+let make_hold_list_div =
+  let$* ui_state = Lwd.get Main_logic.ui_state_var
+  and$ current_holds = Lwd.get Main_logic.current_holds_var in
+  match ui_state with
+    Main_logic.Editing_Panel ->
+    let holds_info = List.map make @@ current_holds in
+    div ~a:[a_class (Lwd.pure ["right-panel-holds"])] holds_info
+  | Main_logic.Editing_Route
+    | Main_logic.Viewing_Route
+    | Main_logic.Viewing_Route_List -> div ~a:[] []

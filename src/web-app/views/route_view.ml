@@ -60,9 +60,16 @@ let div_list_from_route_list ?f route_list =
   
 (* The "list of routes" div          *)
 
-let make_route_list_div list_route_var =
-  let$* list_route = Lwd.get list_route_var in
-  let div_info = div_list_from_route_list ~f:(fun route  -> Some (fun _ -> Main_logic.set_current_route (Some route);false)) list_route in
+let make_route_list_div =
+  let$* ui_state = Lwd.get Main_logic.ui_state_var in
+  match ui_state with
+    Main_logic.Editing_Panel -> div ~a:[] []
+  | Main_logic.Viewing_Route_List | Main_logic.Viewing_Route | Main_logic.Editing_Route ->
+  let$* list_route = Lwd.get Main_logic.all_routes_var in
+  let div_info = div_list_from_route_list ~f:(fun route  -> Some (fun _ ->
+                                                                Main_logic.set_current_route (Some route);
+                                                                Lwd.set Main_logic.ui_state_var Main_logic.Viewing_Route;
+                                                                false)) list_route in
   div ~a:[a_class (Lwd.pure ["all-route-info"])] [
       div ~a:[] div_info;
       div ~a:[] [
@@ -76,15 +83,15 @@ let make_route_list_div list_route_var =
     
 (* The "current route" div           *)
 
-let make_current_route_div current_route_var =
+let make_current_route_div =
   let close_div = input ~a:[a_input_type (Lwd.pure `Button); a_onclick Route_logic.close_route_callback] () in
-  let$* current_route = Lwd.get current_route_var in
+  let$* current_route = Lwd.get Main_logic.current_route_var in
   match current_route with
     None -> 
      div ~a:[a_class (Lwd.pure ["right-panel-route"; "invisible"])] []
   | Some current_route ->
     let div_info = div_of_route_detailed current_route in
-    let holds_info = List.map Hold_view.make current_route.holds in
+    let holds_info = List.map Hold_view.make (current_route.holds |> List.map Lwd.var) in
   div ~a:[a_class (Lwd.pure ["right-panel-route"])] [
       close_div;
       div_info;
