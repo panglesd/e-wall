@@ -9,10 +9,18 @@ module Content = struct
    *     filename: string;
    *   } [@@deriving irmin] *)
   type t = Model.Hold.t
+
+  let panel_t =
+    let open Model.Panel in
+    record "t" (fun id name filename -> ({ id ; name ; filename} : t))
+          |+ field "id" string (fun (t:t) -> t.id)
+          |+ field "name" string (fun (t:t) -> t.name)
+          |+ field "filename" string (fun (t:t) -> t.filename)
+          |> sealr
          
   let t = record "t" (fun id panel position size name -> ({ id ; panel ; position ; size ; name}:t))
           |+ field "id" string (fun (t:t) -> t.id)
-          |+ field "panel" Panel_db.Content.t (fun (t:t) -> t.panel)
+          |+ field "panel" panel_t (fun (t:t) -> t.panel)
           |+ field "position" (pair float float) (fun (t:t) -> t.position)
           |+ field "size" int (fun (t:t) -> t.size)
           |+ field "name" string (fun (t:t) -> t.name)
