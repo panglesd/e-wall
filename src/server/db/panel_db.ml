@@ -44,7 +44,9 @@ let get ~id =
 let delete panel =
   let open Model.Panel in
   get_master () >>= fun t ->
-  Store.remove ~info:(info "My first commit") t [panel.id]
+  ignore @@ Store.remove ~info:(info "My first commit") t [panel.id];
+  let* hold_list = Hold_db.get_all () in
+  Hold_db.set_all (List.filter (fun hold -> Model.Hold.(hold.panel) <> panel) hold_list)
 
   
 let get_all () =
