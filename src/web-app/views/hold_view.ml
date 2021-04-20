@@ -146,11 +146,13 @@ let hold_in_panel_div (hold_var:Model.Hold.t Lwd.var) =
 
 let make_hold_list_div =
   let$* ui_state = Lwd.get Main_logic.ui_state_var
+  and$ current_panel_opt = Lwd.get Main_logic.current_panel_var
   and$ current_holds = Lwd.get Main_logic.current_holds_var in
-  match ui_state with
-    Main_logic.Editing_Panel ->
-    let holds_info = List.map make @@ current_holds in
+  match ui_state, current_panel_opt with
+    Main_logic.Editing_Panel, Some current_panel ->
+    let holds_info = List.map make @@ List.filter (fun h -> Model.Hold.((Lwd.peek h).panel) = current_panel) current_holds in
     div ~a:[a_class (Lwd.pure ["right-panel-holds"])] holds_info
-  | Main_logic.Editing_Route
-    | Main_logic.Viewing_Route
-    | Main_logic.Viewing_Route_List -> div ~a:[] []
+  | Main_logic.Editing_Panel, None
+    | Main_logic.Editing_Route, _
+    | Main_logic.Viewing_Route, _
+    | Main_logic.Viewing_Route_List, _ -> div ~a:[] []
