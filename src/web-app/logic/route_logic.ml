@@ -4,7 +4,7 @@
 
 let create_route_callback : Tyxml_lwd.Xml.mouse_event_handler =
   let f = fun _e ->
-    let blank_route = Model__Route.make ~id:(Utils.get_rand_id ()) ~name:"fzefzef" ~holds:[] ~feet:Model.Route.Feet.Only () in
+    let blank_route = Model__Route.make ~id:(Utils.get_rand_id ()) ~name:"" ~holds:[] ~feet:Model.Route.Feet.Only () in
     Lwd.set Main_logic.ui_state_var Main_logic.Editing_Route;
     Lwd.set Main_logic.current_route_var (Some blank_route);
     false in

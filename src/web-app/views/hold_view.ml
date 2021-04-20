@@ -7,25 +7,24 @@ let make (hold_var:Hold.t Lwd.var) =
   let$* ui_state = Lwd.get Main_logic.ui_state_var in
   let scale_var = Lwd.var 1. in
   let$* hold = Lwd.get hold_var in
+  let round_container_size = 80 in
+  let (x,y) = hold.position |> fun (x,y) -> (int_of_float x, int_of_float y) in
+  let img_style =
+    let$ scale = Lwd.get scale_var in
+    (Printf.sprintf "position:relative; left:%dpx; top: %dpx; transform: scale(%f); transform-origin: %dpx %dpx" (40-x) (40-y) (scale*.0.75)  x y) in
+  let img_onload = Lwd.pure @@ Some (fun e ->
+                                   match Js_of_ocaml.Js.Opt.to_option e##.currentTarget with
+                                     None -> false
+                                   | Some target ->
+                                      match  Js_of_ocaml.Js.Opt.to_option @@ Js_of_ocaml.Dom_html.CoerceTo.img target  with
+                                        None -> false
+                                      | Some img_target ->
+                                         Lwd.set scale_var @@ (float (300 * round_container_size)) /. (float (hold.size * img_target##.height));
+                                         false
+                                 ) in
   match ui_state with
   |  Main_logic.Editing_Panel ->
       let _panel_string = hold.panel.name in
-      let (x,y) = hold.position |> fun (x,y) -> (int_of_float x, int_of_float y) in
-      let round_container_size = 80 in
-      let _a = 1 in
-      let img_style =
-        let$ scale = Lwd.get scale_var in
-        (Printf.sprintf "position:relative; left:%dpx; top: %dpx; transform: scale(%f); transform-origin: %dpx %dpx" (40-x) (40-y) (scale*.0.75)  x y) in
-      let img_onload = Lwd.pure @@ Some (fun e ->
-                           match Js_of_ocaml.Js.Opt.to_option e##.currentTarget with
-                             None -> false
-                           | Some target ->
-                              match  Js_of_ocaml.Js.Opt.to_option @@ Js_of_ocaml.Dom_html.CoerceTo.img target  with
-                                None -> false
-                              | Some img_target ->
-                                 Lwd.set scale_var @@ (float (300 * round_container_size)) /. (float (hold.size * img_target##.height));
-                                 false
-                         ) in
       div ~a:[a_class (Lwd.pure ["hold-info"])] [
           div ~a:[a_class (Lwd.pure ["round-hold-container"])] [
               img
@@ -82,11 +81,17 @@ let make (hold_var:Hold.t Lwd.var) =
   | Main_logic.Viewing_Route_List
   | Main_logic.Viewing_Route  ->
      let _panel_string = hold.panel.name in 
-     let (x,y) = hold.position |> fun (x,y) -> (int_of_float x, int_of_float y) in
+     (* let (x,y) = hold.position |> fun (x,y) -> (int_of_float x, int_of_float y) in *)
      div ~a:[a_class (Lwd.pure ["hold-info"])] [
-          div ~a:[a_class (Lwd.pure ["round-hold-container"])] [
-              img ~a:[a_style (Lwd.pure @@ Printf.sprintf "position:relative; left:%dpx; top: %dpx; transform: scale(%f); transform-origin: %dpx %dpx" (40-x) (40-y) (1./.(float_of_int hold.size)) x y)] ~src:(Lwd.pure @@ "img/panel-img/" ^ (hold.panel.filename)) ~alt:(Lwd.pure "alt")()
-            ];
+         div ~a:[a_class (Lwd.pure ["round-hold-container"])] [
+             img
+               ~a:[a_style img_style;
+                   a_onload img_onload
+               ]
+               ~src:(Lwd.pure @@ "img/panel-img/" ^ (hold.panel.filename)) ~alt:(Lwd.pure "alt")()
+           ]; (* div ~a:[a_class (Lwd.pure ["round-hold-container"])] [
+             *   img ~a:[a_style (Lwd.pure @@ Printf.sprintf "position:relative; left:%dpx; top: %dpx; transform: scale(%f); transform-origin: %dpx %dpx" (40-x) (40-y) (1./.(float_of_int hold.size)) x y)] ~src:(Lwd.pure @@ "img/panel-img/" ^ (hold.panel.filename)) ~alt:(Lwd.pure "alt")()
+             * ]; *)
          (* img ~src:(Lwd.pure "rien") ~alt:(Lwd.pure "alt")(); *)
          (* div ~a:[a_class (Lwd.pure ["hold-panel-name"])] [txt (Lwd.pure panel_string)]; *)
          div ~a:[a_class (Lwd.pure ["hold-name"])] [txt (Lwd.pure hold.name)];

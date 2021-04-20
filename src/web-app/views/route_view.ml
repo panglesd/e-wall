@@ -35,7 +35,10 @@ let div_of_route_detailed ?on_click (route:Route.t) =
     let$* ui_state = Lwd.get Main_logic.ui_state_var in
     match ui_state with
       Main_logic.Editing_Route -> 
-       input ~a:[a_class (Lwd.pure ["route-name"]); a_input_type (Lwd.pure `Text); a_value((Lwd.pure route.name))] ()
+       input ~a:[a_class (Lwd.pure ["route-name"]);
+                 a_input_type (Lwd.pure `Text);
+                 a_placeholder (Lwd.pure "Nom de la voie");
+                 a_value((Lwd.pure route.name))] ()
     | _ -> 
        div ~a:[a_class (Lwd.pure ["route-name"])] [txt (Lwd.pure route.name)]
   in
@@ -63,8 +66,8 @@ let div_list_from_route_list ?f route_list =
 let make_route_list_div =
   let$* ui_state = Lwd.get Main_logic.ui_state_var in
   match ui_state with
-    Main_logic.Editing_Panel -> div ~a:[] []
-  | Main_logic.Viewing_Route_List | Main_logic.Viewing_Route | Main_logic.Editing_Route ->
+    Main_logic.Editing_Panel | Main_logic.Editing_Route -> div ~a:[] []
+  | Main_logic.Viewing_Route_List | Main_logic.Viewing_Route ->
   let$* list_route = Lwd.get Main_logic.all_routes_var in
   let div_info = div_list_from_route_list ~f:(fun route  -> Some (fun _ ->
                                                                 Main_logic.set_current_route (Some route);
@@ -84,7 +87,9 @@ let make_route_list_div =
 (* The "current route" div           *)
 
 let make_current_route_div =
-  let close_div = input ~a:[a_input_type (Lwd.pure `Button); a_onclick Route_logic.close_route_callback] () in
+  let close_div = input ~a:[a_input_type (Lwd.pure `Button);
+                            a_value (Lwd.pure "Retour à la liste des voies");
+                            a_onclick Route_logic.close_route_callback] () in
   let$* current_route = Lwd.get Main_logic.current_route_var in
   match current_route with
     None -> 
@@ -95,7 +100,7 @@ let make_current_route_div =
   div ~a:[a_class (Lwd.pure ["right-panel-route"])] [
       close_div;
       div_info;
-      div ~a:[a_class (Lwd.pure(["route-hold-list"]))] holds_info;
+      div ~a:[a_class (Lwd.pure(["route-hold-list"]))] (holds_info @ [txt (Lwd.pure "Cliquer sur une prise pour la rajouter au parcours")]);
       input ~a:[a_input_type (Lwd.pure `Button);
                 a_value (Lwd.pure "Enregistrer la voie");
                 a_onclick Route_logic.save_route] () 
