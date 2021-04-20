@@ -37,3 +37,10 @@ let set_name hold name =
     ~position:hold.position
     ~size:hold.size
     ~name
+
+let set_size hold size =
+  make ~id:hold.id
+    ~panel:hold.panel
+    ~position:hold.position
+    ~size:size
+    ~name:hold.name

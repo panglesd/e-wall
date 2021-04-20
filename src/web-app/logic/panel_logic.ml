@@ -52,7 +52,10 @@ let mouse_click_add : Tyxml_lwd.Xml.mouse_event_handler =
       Printf.printf "on click, x, y and co are now %d %d %d %d\n" x y x2 y2;
       match (Lwd.peek Main_logic.current_panel_var) with
         Some panel ->
-         let new_hold = Model.Hold.make_rand_id ~panel ~position:(float (x2-x)*. float naturalWidth/.float img##.width,float (y2-y)*.float naturalHeight/. float img##.height) ~size:10 ~name:"10" in
+         let new_hold = Model.Hold.make_rand_id ~panel
+                          ~position:(float (x2-x)*. float naturalWidth/.float img##.width,float (y2-y)*.float naturalHeight/. float img##.height)
+                          ~size:30
+                          ~name:"" in
          Lwd.set (Main_logic.current_holds_var) ((Lwd.var new_hold)::(Lwd.peek Main_logic.current_holds_var));
          false
       | None -> false  
