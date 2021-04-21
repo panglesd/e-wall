@@ -66,7 +66,12 @@ let make_panel_list_div current_panel_var =
   let on_click panel = Some (fun _ev ->
     Lwd.set current_panel_var (Some panel); false) in
   let l = List.map (div_of_panel ~on_click) all_panels in
-  div ~a:[a_class (Lwd.pure ["bottom-panel"])] ((* update_div:: *)l@[panel_form])
+  let$* ui_state = Lwd.get Main_logic.ui_state_var in
+  match ui_state with
+    Main_logic.Viewing_Route_List -> 
+    div ~a:[a_class (Lwd.pure ["bottom-panel"])] ((* update_div:: *)l@[panel_form])
+  | Main_logic.Editing_Panel | Main_logic.Editing_Route | Main_logic.Viewing_Route ->
+     div ~a:[a_class (Lwd.pure ["bottom-panel"])] ((* update_div:: *)l)
 
 (* The "main panel" div              *)
   
