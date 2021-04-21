@@ -7,25 +7,24 @@ let tool_var = Lwd.var Move
 let focused_var = ref None
 
 let save_panel : (Js_of_ocaml.Dom_html.mouseEvent Js_of_ocaml.Js.t -> bool) Lwd.t =
-  let f = fun _e ->
-    ignore @@ Webapp_libs.Request.send_new_holds (
-                  Main_logic.current_holds_var
-                  |> Lwd.peek
-                  |> List.map Lwd.peek
-                );
-    false in
-  Lwd.pure f
+  let$ current_holds = Main_logic.get_current_holds in
+  fun _e ->
+    
+  ignore @@ Webapp_libs.Request.send_new_holds (
+                List.map Lwd.peek current_holds
+              );
+  false 
 
 let delete_panel : (Js_of_ocaml.Dom_html.mouseEvent Js_of_ocaml.Js.t -> bool) Lwd.t =
-  let f = fun _e ->
+  let$ panel_opt = Main_logic.get_current_panel in
+  fun _e ->
     let open Opt_monad in
     let _ =
       let open Lwt.Syntax in
-      let= panel = Main_logic.current_panel_var |> Lwd.peek in
+      let= panel = panel_opt in
       let+ panel_list = Webapp_libs.Request.delete_panel panel in
       Main_logic.set_panel_list panel_list in
-    false in
-  Lwd.pure f
+    false
                 
 let mouse_click_add : Tyxml_lwd.Xml.mouse_event_handler =
   let f = fun e ->
@@ -50,15 +49,19 @@ let mouse_click_add : Tyxml_lwd.Xml.mouse_event_handler =
       let x,y = Js_of_ocaml.Dom_html.elementClientPosition elem in
       let x2,y2 = Js_of_ocaml.Dom_html.eventAbsolutePosition e in
       Printf.printf "on click, x, y and co are now %d %d %d %d\n" x y x2 y2;
-      match (Lwd.peek Main_logic.current_panel_var) with
+      let _ =
+        let$ current_panel_opt = Main_logic.get_current_panel in
+        match current_panel_opt with
         Some panel ->
          let new_hold = Model.Hold.make_rand_id ~panel
                           ~position:(float (x2-x)*. float naturalWidth/.float img##.width,float (y2-y)*.float naturalHeight/. float img##.height)
                           ~size:30
                           ~name:"" in
-         Lwd.set (Main_logic.current_holds_var) ((Lwd.var new_hold)::(Lwd.peek Main_logic.current_holds_var));
+         Main_logic.add_hold new_hold;
+           ;
          false
-      | None -> false  
+        | None -> false  in
+      false
     else begin
         (* Printf.printf "bliblibli\n"; *)
         false end in

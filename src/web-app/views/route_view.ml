@@ -32,9 +32,9 @@ let div_of_route_detailed ?on_click (route:Route.t) =
       All -> "Tout pied autorisés", "all-feet"
     | Only -> "Seul les prises de main peuvent être utilisées avec les pieds", "restricted-feet" in
   let name =
-    let$* ui_state = Lwd.get Main_logic.ui_state_var in
+    let$* ui_state = Ui_logic.get_ui_state in
     match ui_state with
-      Main_logic.Editing_Route -> 
+      Ui_logic.Editing_Route -> 
        input ~a:[a_class (Lwd.pure ["route-name"]);
                  a_input_type (Lwd.pure `Text);
                  a_placeholder (Lwd.pure "Nom de la voie");
@@ -65,11 +65,11 @@ let div_list_from_route_list ?f route_list =
 (* The "list of routes" div          *)
 
 let make_route_list_div =
-  let$* ui_state = Lwd.get Main_logic.ui_state_var in
+  let$* ui_state = Ui_logic.get_ui_state in
   match ui_state with
-    Main_logic.Editing_Panel | Main_logic.Editing_Route -> div ~a:[] []
-  | Main_logic.Viewing_Route_List | Main_logic.Viewing_Route ->
-  let$* list_route = Lwd.get Main_logic.all_routes_var in
+    Ui_logic.Editing_Panel | Ui_logic.Editing_Route -> div ~a:[] []
+  | Ui_logic.Viewing_Route_List | Ui_logic.Viewing_Route ->
+  let$* list_route = Main_logic.get_all_routes in
   let div_info = div_list_from_route_list ~f:Route_logic.select_route_callback list_route in
   div ~a:[a_class (Lwd.pure ["all-route-info"])] [
       div ~a:[] div_info;
@@ -88,7 +88,7 @@ let make_current_route_div =
   let close_div = input ~a:[a_input_type (Lwd.pure `Button);
                             a_value (Lwd.pure "Retour à la liste des voies");
                             a_onclick Route_logic.close_route_callback] () in
-  let$* current_route = Lwd.get Main_logic.current_route_var in
+  let$* current_route = Main_logic.get_current_route in
   match current_route with
     None -> 
      div ~a:[a_class (Lwd.pure ["right-panel-route"; "invisible"])] []

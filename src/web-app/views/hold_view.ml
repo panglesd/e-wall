@@ -4,7 +4,7 @@ open Lwd_infix
 open Logic
 
 let make (hold_var:Hold.t Lwd.var) =
-  let$* ui_state = Lwd.get Main_logic.ui_state_var in
+  let$* ui_state = Ui_logic.get_ui_state in
   let scale_var = Lwd.var 1. in
   let$* hold = Lwd.get hold_var in
   let round_container_size = 80 in
@@ -23,7 +23,7 @@ let make (hold_var:Hold.t Lwd.var) =
                                          false
                                  ) in
   match ui_state with
-  |  Main_logic.Editing_Panel ->
+  |  Ui_logic.Editing_Panel ->
       let _panel_string = hold.panel.name in
       div ~a:[a_class (Lwd.pure ["hold-info"])] [
           div ~a:[a_class (Lwd.pure ["round-hold-container"])] [
@@ -33,7 +33,7 @@ let make (hold_var:Hold.t Lwd.var) =
                 ]
                 ~src:(Lwd.pure @@ "img/panel-img/" ^ (hold.panel.filename)) ~alt:(Lwd.pure "alt")()
             ];
-         (* div ~a:[a_class (Lwd.pure ["hold-panel-name"])] [txt (Lwd.pure panel_string)]; *)
+          (* div ~a:[a_class (Lwd.pure ["hold-panel-name"])] [txt (Lwd.pure panel_string)]; *)
           input ~a:[
               a_class (Lwd.pure ["hold-name"]);
               a_input_type (Lwd.pure `Text);
@@ -77,9 +77,9 @@ let make (hold_var:Hold.t Lwd.var) =
             ] ();
           
         ] 
-  | Main_logic.Editing_Route 
-  | Main_logic.Viewing_Route_List
-  | Main_logic.Viewing_Route  ->
+  | Ui_logic.Editing_Route 
+    | Ui_logic.Viewing_Route_List
+    | Ui_logic.Viewing_Route  ->
      let _panel_string = hold.panel.name in 
      (* let (x,y) = hold.position |> fun (x,y) -> (int_of_float x, int_of_float y) in *)
      div ~a:[a_class (Lwd.pure ["hold-info"])] [
@@ -90,8 +90,8 @@ let make (hold_var:Hold.t Lwd.var) =
                ]
                ~src:(Lwd.pure @@ "img/panel-img/" ^ (hold.panel.filename)) ~alt:(Lwd.pure "alt")()
            ]; (* div ~a:[a_class (Lwd.pure ["round-hold-container"])] [
-             *   img ~a:[a_style (Lwd.pure @@ Printf.sprintf "position:relative; left:%dpx; top: %dpx; transform: scale(%f); transform-origin: %dpx %dpx" (40-x) (40-y) (1./.(float_of_int hold.size)) x y)] ~src:(Lwd.pure @@ "img/panel-img/" ^ (hold.panel.filename)) ~alt:(Lwd.pure "alt")()
-             * ]; *)
+               *   img ~a:[a_style (Lwd.pure @@ Printf.sprintf "position:relative; left:%dpx; top: %dpx; transform: scale(%f); transform-origin: %dpx %dpx" (40-x) (40-y) (1./.(float_of_int hold.size)) x y)] ~src:(Lwd.pure @@ "img/panel-img/" ^ (hold.panel.filename)) ~alt:(Lwd.pure "alt")()
+               * ]; *)
          (* img ~src:(Lwd.pure "rien") ~alt:(Lwd.pure "alt")(); *)
          (* div ~a:[a_class (Lwd.pure ["hold-panel-name"])] [txt (Lwd.pure panel_string)]; *)
          div ~a:[a_class (Lwd.pure ["hold-name"])] [txt (Lwd.pure hold.name)];
@@ -100,23 +100,23 @@ let make (hold_var:Hold.t Lwd.var) =
 
 let hold_in_panel_div (hold_var:Model.Hold.t Lwd.var) =
   let$* hold = Lwd.get hold_var in
-  let$* loaded = Lwd.get Main_logic.loaded in
-  let click_callback = Main_logic.make_callback
+  let$* loaded = Lwd.get Ui_logic.loaded in
+  let click_callback = Ui_logic.make_callback
                          ~editing_panel:Panel_logic.mouse_click_callback
                          ~editing_route:Route_logic.mouse_click_callback
                          ~viewing_route_list:(fun _var -> Lwd.pure None)
                          ~viewing_route:(fun _var -> Lwd.pure None) (Some hold_var)
-  and mousemove_callback = Main_logic.make_callback
+  and mousemove_callback = Ui_logic.make_callback
                              ~editing_panel:Panel_logic.mouse_move_callback
                              ~editing_route:(fun _var -> Lwd.pure None)
                              ~viewing_route:(fun _var -> Lwd.pure None)
                              ~viewing_route_list:(fun _var -> Lwd.pure None) (Some hold_var)
-  and mouseup_callback = Main_logic.make_callback
+  and mouseup_callback = Ui_logic.make_callback
                            ~editing_panel:Panel_logic.mouse_up_callback
                            ~editing_route:Panel_logic.mouse_click_callback
                            ~viewing_route:(fun _var -> Lwd.pure None)
                            ~viewing_route_list:(fun _var -> Lwd.pure None) (Some hold_var)
-  and mousedown_callback = Main_logic.make_callback
+  and mousedown_callback = Ui_logic.make_callback
                              ~editing_panel:Panel_logic.mouse_down_callback
                              ~editing_route:(fun _var -> Lwd.pure None)
                              ~viewing_route:(fun _var -> Lwd.pure None)
@@ -142,17 +142,18 @@ let hold_in_panel_div (hold_var:Model.Hold.t Lwd.var) =
       a_onmouseup mouseup_callback;
       a_onmousemove mousemove_callback;
     ] []
-    
+  
 
 let make_hold_list_div =
-  let$* ui_state = Lwd.get Main_logic.ui_state_var
-  and$ current_panel_opt = Lwd.get Main_logic.current_panel_var
-  and$ current_holds = Lwd.get Main_logic.current_holds_var in
+  let$* ui_state = Ui_logic.get_ui_state
+  and$ current_panel_opt = Main_logic.get_current_panel
+  and$ current_holds = Main_logic.get_current_holds in
   match ui_state, current_panel_opt with
-    Main_logic.Editing_Panel, Some current_panel ->
-    let holds_info = List.map make @@ List.filter (fun h -> Model.Hold.((Lwd.peek h).panel) = current_panel) current_holds in
-    div ~a:[a_class (Lwd.pure ["right-panel-holds"])] holds_info
-  | Main_logic.Editing_Panel, None
-    | Main_logic.Editing_Route, _
-    | Main_logic.Viewing_Route, _
-    | Main_logic.Viewing_Route_List, _ -> div ~a:[] []
+    Ui_logic.Editing_Panel, Some current_panel ->
+     let holds_info = List.map make @@ List.filter (fun h -> Model.Hold.((Lwd.peek h).panel) = current_panel) current_holds in
+     div ~a:[a_class (Lwd.pure ["right-panel-holds"])] holds_info
+  | Ui_logic.Editing_Panel, None
+    | Ui_logic.Editing_Route, _
+    | Ui_logic.Viewing_Route, _
+    | Ui_logic.Viewing_Route_List, _ -> div ~a:[] []
+                                          
