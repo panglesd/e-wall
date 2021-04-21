@@ -38,6 +38,7 @@ let div_of_route_detailed ?on_click (route:Route.t) =
        input ~a:[a_class (Lwd.pure ["route-name"]);
                  a_input_type (Lwd.pure `Text);
                  a_placeholder (Lwd.pure "Nom de la voie");
+                 a_onchange (Route_logic.onchange_name_callback);
                  a_value((Lwd.pure route.name))] ()
     | _ -> 
        div ~a:[a_class (Lwd.pure ["route-name"])] [txt (Lwd.pure route.name)]
@@ -69,10 +70,7 @@ let make_route_list_div =
     Main_logic.Editing_Panel | Main_logic.Editing_Route -> div ~a:[] []
   | Main_logic.Viewing_Route_List | Main_logic.Viewing_Route ->
   let$* list_route = Lwd.get Main_logic.all_routes_var in
-  let div_info = div_list_from_route_list ~f:(fun route  -> Some (fun _ ->
-                                                                Main_logic.set_current_route (Some route);
-                                                                Lwd.set Main_logic.ui_state_var Main_logic.Viewing_Route;
-                                                                false)) list_route in
+  let div_info = div_list_from_route_list ~f:Route_logic.select_route_callback list_route in
   div ~a:[a_class (Lwd.pure ["all-route-info"])] [
       div ~a:[] div_info;
       div ~a:[] [

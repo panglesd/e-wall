@@ -38,3 +38,14 @@ let add_hold route hold =
   and feet = route.feet
   in
   make ~id ?initial_hold ?final_hold ?cotation ~name ~holds ~feet ()
+
+let set_name route name =
+  let id = route.id
+  and initial_hold = route.initial_hold
+  and final_hold = route.final_hold
+  and cotation = route.cotation
+  and name = name
+  and holds = route.holds
+  and feet = route.feet
+  in
+  make ~id ?initial_hold ?final_hold ?cotation ~name ~holds ~feet ()

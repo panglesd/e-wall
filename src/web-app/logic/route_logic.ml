@@ -1,6 +1,7 @@
 (* open Tyxml_lwd.Html *)
 (* open Model *)
 (* open Lwd_infix *)
+open Lwt.Syntax
 
 let create_route_callback : Tyxml_lwd.Xml.mouse_event_handler =
   let f = fun _e ->
@@ -22,7 +23,10 @@ let save_route : Tyxml_lwd.Xml.mouse_event_handler =
     match Lwd.peek Main_logic.current_route_var with
       None -> false
     | Some route ->
-       ignore @@ Webapp_libs.Request.send_new_route route;
+       let _ =
+         let+ route_list = Webapp_libs.Request.send_new_route route in
+         Main_logic.set_route_list route_list;
+         Lwd.set Main_logic.ui_state_var Main_logic.Viewing_Route_List in
        false in
   Lwd.pure (Some f)
 
@@ -40,45 +44,6 @@ let mouse_click_callback hold_var_opt : Tyxml_lwd.Xml.mouse_event_handler =
     None -> Lwd.pure None
   | Some hold_var ->
      Lwd.pure @@ Some (f hold_var)
-
-(* let mouse_click_callback hold_var_opt =
- *   let$* tool = Lwd.get tool_var in
- *   match tool with
- *     Move -> Lwd.pure None
- *   | Add -> mouse_click_add
- *   | Delete -> match hold_var_opt with None -> Lwd.pure None | Some hold_var ->  mouse_click_remove hold_var *)
-                                                                              
-                                                                              
-(* let mouse_move_move : Tyxml_lwd.Xml.mouse_event_handler =
- *   () *)
-  
-(* let mouse_move_callback _hold_var_opt =
- *   let$* tool = Lwd.get tool_var in
- *   match tool with
- *     Move -> mouse_move_move
- *   | Add -> Lwd.pure None
- *   | Delete -> Lwd.pure None *)
-
-(* let mouse_up_move : Tyxml_lwd.Xml.mouse_event_handler =
- *   let$ focused = Lwd.get focused_var in
- *   match focused with
- *     None -> None
- *   | Some _ ->
- *      Some (fun _e -> Lwd.set focused_var None; false) *)
-
-(* let mouse_up_callback _hold_var_opt = 
- *   let$* tool = Lwd.get tool_var in
- *   match tool with
- *     Move -> mouse_up_move
- *   | Add -> Lwd.pure None
- *   | Delete -> Lwd.pure None *)
-
-(* let mouse_down_move hold_var =
- *   Lwd.pure @@
- *     Some (fun e ->
- *         let xev,yev = Js_of_ocaml.Dom_html.eventAbsolutePosition e in
- *         let x,y = Model.Hold.((Lwd.peek hold_var).position) in
- *         Lwd.set focused_var (Some (hold_var, (x, y), (xev,yev))); false) *)
   
 let mouse_down_callback hold_var_opt =
   match hold_var_opt with
@@ -94,3 +59,34 @@ let mouse_leave_move _hold_var =
 let mouse_leave_callback _hold_var = 
   ()                
                 
+let set_current_route_name name =
+  match Lwd.peek Main_logic.current_route_var with
+    None -> ()
+  | Some route ->
+     Lwd.set Main_logic.current_route_var (Some (Model.Route.set_name route name))
+
+
+let onchange_name_callback : Tyxml_lwd.Xml.event_handler =
+  Lwd.pure @@
+    Some (
+        fun e ->
+        let target_js_opt = e##.currentTarget in
+        let target_opt = Js_of_ocaml.Js.Opt.to_option target_js_opt in
+        match target_opt with
+          None -> false
+        | Some target ->
+           match  Js_of_ocaml.Js.Opt.to_option @@ Js_of_ocaml.Dom_html.CoerceTo.input target  with
+             None -> false
+           | Some input_target ->
+              let input_value = Js_of_ocaml.Js.to_string input_target##.value in
+              set_current_route_name input_value;
+              false
+      )
+
+
+let select_route_callback route =
+    Some (fun _e ->
+        Main_logic.set_current_route (Some route);
+        Lwd.set Main_logic.ui_state_var Main_logic.Viewing_Route;
+        false
+      )

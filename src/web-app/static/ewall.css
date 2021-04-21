@@ -64,6 +64,13 @@
 .route-info {
     background-color: violet;
     flex-grow: 1;
+    border: 1px solid black;
+    margin: 5px;
+    padding: 5px;
+}
+.route-info > *:first-child {
+    font-size:1.5em;
+    border-bottom: 1px solid black
 }
 
 .panel-hold-container {
@@ -125,4 +132,7 @@
 
 .hold-info input[type=Number] {
     width:40px;
+}
+.hold-info {
+    margin: 3px;
 }

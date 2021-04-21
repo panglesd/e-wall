@@ -25,7 +25,12 @@ type ui_state =
 let ui_state_var = Lwd.var Viewing_Route_List
 let loaded = Lwd.var false
                  
-
+let set_ui_state state = match state with
+    Editing_Panel -> Lwd.set ui_state_var Editing_Panel
+  | Editing_Route -> Lwd.set ui_state_var Editing_Route
+  | Viewing_Route_List -> Lwd.set ui_state_var Viewing_Route_List
+  | Viewing_Route -> Lwd.set ui_state_var Viewing_Route
+  
 let make_callback ~editing_panel ~editing_route ~viewing_route ~viewing_route_list hold_var_opt =
   let$* ui_state = Lwd.get ui_state_var in
   match ui_state with
@@ -33,6 +38,17 @@ let make_callback ~editing_panel ~editing_route ~viewing_route ~viewing_route_li
   | Editing_Route -> editing_route hold_var_opt
   | Viewing_Route_List -> viewing_route_list hold_var_opt
   | Viewing_Route -> viewing_route hold_var_opt
+
+let get_panels_to_show =
+  let$* ui_state = Lwd.get ui_state_var in
+  match ui_state with
+    Editing_Panel | Editing_Route | Viewing_Route_List -> Lwd.get all_panels_var
+    | Viewing_Route ->
+       let$ route_opt = Lwd.get current_route_var in
+       match route_opt with
+         None -> []
+       | Some route -> 
+          List.sort_uniq compare @@ List.map (fun hold -> Model.Hold.(hold.panel)) Model.Route.(route.holds)
 
                  
 (** Global state variables, getters and setters  *)
@@ -75,12 +91,12 @@ let set_current_route (route:Model.Route.t option) =
   match route with
     None ->
      Lwd.set current_route_var None;
-     set_current_holds [];
-     ignore @@ update_panel_list ()
+     (* set_current_holds [];
+      * ignore @@ update_panel_list () *)
   | Some route ->
-     Lwd.set current_route_var (Some route);
-     set_current_holds (List.map (fun h -> Lwd.var h) route.holds);
-     set_panel_list @@ List.sort_uniq compare @@ List.map (fun hold -> Model.Hold.(hold.panel)) route.holds
+     Lwd.set current_route_var (Some route)
+     (* set_current_holds (List.map (fun h -> Lwd.var h) route.holds); *)
+     (* set_panel_list @@ List.sort_uniq compare @@ List.map (fun hold -> Model.Hold.(hold.panel)) route.holds *)
   (* Lwd.set all_panels_var (      
    *     List.sort_uniq compare @@ List.map (fun hold -> Model.Hold.(hold.panel)) route.holds
    *   ) *)

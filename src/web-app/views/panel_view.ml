@@ -41,7 +41,7 @@ let div_list_from_panel_list ?f panel_list =
 
 (* The "list of panels" div          *)
   
-let make_panel_list_div all_panels_var current_panel_var =
+let make_panel_list_div current_panel_var =
   (* let update_div =  input ~a:[a_value (Lwd.pure "Update");a_input_type (Lwd.pure `Button); a_onclick (Lwd.pure @@ Some (fun _ -> ignore @@ Logic.Main_logic.update_panel_list (); false))] () in *)
   (* The "add a panel" form            *)
 
@@ -62,37 +62,13 @@ let make_panel_list_div all_panels_var current_panel_var =
       ] in
   
   
-  let$* all_panels = Lwd.get all_panels_var in
+  let$* all_panels = Main_logic.get_panels_to_show in
   let on_click panel = Some (fun _ev ->
     Lwd.set current_panel_var (Some panel); false) in
   let l = List.map (div_of_panel ~on_click) all_panels in
   div ~a:[a_class (Lwd.pure ["bottom-panel"])] ((* update_div:: *)l@[panel_form])
 
 (* The "main panel" div              *)
-
-(* let move_hold hold_var =
- *   let f = fun e ->
- *     let old_hold = Lwd.peek hold_var in
- *     let open Model.Hold in
- *     let hx,hy = old_hold.position in
- *     let elem = Js_of_ocaml.Dom.eventTarget e in
- *     let x,y = Js_of_ocaml.Dom_html.elementClientPosition elem in
- *     let x2,y2 = Js_of_ocaml.Dom_html.eventAbsolutePosition e in
- *     Printf.printf "old_hold pos %d %d\n" x y;
- *     Printf.printf "event absolute pos %d %d\n" x2 y2;
- *     let new_hold = Model.Hold.make
- *                      ~id:old_hold.id
- *                      ~panel:old_hold.panel
- *                      ~position:(hx+x-x2, hy+y-y2)
- *                      ~size:old_hold.size
- *                      ~name:old_hold.name
- *     in
- *     Lwd.set hold_var new_hold;
- *     false in
- *   Some f *)
-
-
-
   
 let tool_div =
      let classes =
@@ -146,18 +122,25 @@ let tool_div =
     
 
   
-let make_main_panel_div current_panel_var current_holds_var =
+let make_main_panel_div current_panel_var =
   Lwd.set Main_logic.loaded false;
   let$* current_panel_opt = Lwd.get current_panel_var in
   match current_panel_opt with
     None -> div ~a:[a_class (Lwd.pure ["main-panel"])] []
   | Some (current_panel) ->
      let$* holds_div_list =
-       (* let$* loaded = Lwd.get loaded in
-        * if not loaded then
-        *   Lwd.pure []
-        * else *)
-       let$ current_holds = Lwd.get current_holds_var in
+       let$ current_holds =
+         let$* ui_state = Lwd.get Main_logic.ui_state_var in
+         match ui_state with
+           Main_logic.Editing_Panel
+         | Main_logic.Editing_Route
+           | Main_logic.Viewing_Route_List -> Lwd.get Main_logic.current_holds_var
+         | Main_logic.Viewing_Route -> 
+            let$* current_route = Lwd.get Main_logic.current_route_var in
+            match current_route with
+              None -> Lwd.pure []
+            | Some current_route -> Lwd.pure @@ List.map Lwd.var current_route.holds
+          in
        List.map Hold_view.hold_in_panel_div (List.filter (fun hold -> Model.Hold.((Lwd.peek hold).panel) = current_panel) current_holds) in
      (* let on_click = add_hold_on_panel_callback current_holds_var current_panel current_holds in *)
      let click_callback = Main_logic.make_callback
