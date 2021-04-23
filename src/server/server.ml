@@ -23,6 +23,7 @@ let start () =
   |> App.middleware Middleware.debugger
   |> App.post "/panel" @@ Panel_handler.add_panel
   |> App.post "/delete/panel" @@ Panel_handler.delete_panel
+  |> App.post "/delete/route" @@ Route_handler.delete_route
   |> App.post "/hold" @@ Hold_handler.update_holds
   |> App.post "/route" @@ Route_handler.add_route
   |> App.get "/" Main_handler.main_handler

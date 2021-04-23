@@ -52,3 +52,7 @@ let send_new_route new_route =
   (* print_endline frame.content;
    * get_all_holds () *)
                   
+let delete_route new_route =
+  let yojsoned = new_route |> Model.Route.yojson_of_t |> Yojson.Safe.to_string in
+  let* frame = perform_raw_url ~contents:(`POST_form([("route_to_delete", `String (Js_of_ocaml.Js.string yojsoned))])) "delete/route" in
+  Lwt.return @@ Model.Route.t_list_of_yojson (Yojson.Safe.from_string frame.content)

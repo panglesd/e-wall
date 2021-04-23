@@ -33,3 +33,20 @@ let add_route req =
      let* () = Db__Route_db.add ~route in
      get_all_routes req
   | None -> get_all_routes req
+
+let delete_route req =
+  let callback = get_all_routes in
+  let open Lwt.Syntax in
+  let open Opt_monad in
+  let* _result =
+    let**+ route_to_delete_string = Request.urlencoded "route_to_delete" req in
+    route_to_delete_string |> Yojson.Safe.from_string |> Model.Route.t_of_yojson
+  in
+  match _result with
+    Some route ->
+     let* _ = Db__Route_db.delete route in
+     Printf.printf "Some route to remove\n";
+     callback req
+  | None ->
+     Printf.printf "No route to remove\n";
+     callback req

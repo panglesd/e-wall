@@ -2,7 +2,7 @@
 (* open Model *)
 (* open Lwd_infix *)
 open Lwt.Syntax
-
+open Lwd_infix
 let create_route_callback : Tyxml_lwd.Xml.mouse_event_handler =
   let f = fun _e ->
     let blank_route = Model__Route.make ~id:(Utils.get_rand_id ()) ~name:"" ~holds:[] ~feet:Model.Route.Feet.Only () in
@@ -19,21 +19,35 @@ let close_route_callback : Tyxml_lwd.Xml.mouse_event_handler =
   Lwd.pure @@ Some f
 
 let save_route : Tyxml_lwd.Xml.mouse_event_handler =
-  let f = fun _e ->
-    match Main_logic.get_current_route_val with
-      None -> false
-    | Some route ->
+  let$ current_route = Main_logic.get_current_route in
+  match current_route with
+    None -> None
+  | Some route ->
+     let f = fun _e ->
        let _ =
          let+ route_list = Webapp_libs.Request.send_new_route route in
          Main_logic.set_route_list route_list;
          Ui_logic.set_ui_state Ui_logic.Viewing_Route_List in
        false in
-  Lwd.pure (Some f)
+     (Some f)
+
+let delete_route : Tyxml_lwd.Xml.mouse_event_handler =
+  let$ current_route = Main_logic.get_current_route in
+  match current_route with
+    None -> None
+  | Some route ->
+     let f = fun _e ->
+       let _ =
+         let+ route_list = Webapp_libs.Request.delete_route route in
+         Main_logic.set_route_list route_list;
+         Ui_logic.set_ui_state Ui_logic.Viewing_Route_List in
+       false in
+     (Some f)
 
   
 let mouse_click_callback hold_var_opt : Tyxml_lwd.Xml.mouse_event_handler =
   let f hold_var = fun _e ->
-    let current_route_opt = Main_logic.get_current_route_val in
+    let current_route_opt = Main_logic.get_current_route_val () in
     match current_route_opt with
       None -> false
     | Some current_route ->
@@ -60,7 +74,7 @@ let mouse_leave_callback _hold_var =
   ()                
                 
 let set_current_route_name name =
-  match Main_logic.get_current_route_val with
+  match Main_logic.get_current_route_val () with
     None -> ()
   | Some route ->
       Main_logic.set_current_route (Some (Model.Route.set_name route name))

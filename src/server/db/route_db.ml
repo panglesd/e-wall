@@ -76,3 +76,8 @@ let get_all () =
         `Contents (contents, _) -> Some contents
       | `Node _ -> None
     ) tree
+
+let delete route =
+  let open Model.Route in
+  get_master () >>= fun t ->
+  Store.remove ~info:(info "My first commit") t [route.id]
