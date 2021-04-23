@@ -30,12 +30,12 @@
 }
 
 .main-panel {
-    background-color: purple;
+    background-color: #f4a261;
     flex-grow: 1;
 }
 
 .bottom-panel {
-    background-color: green;
+    background-color: #2a9d8f;
     height: 150px;
     display: flex;
     justify-content: center;
@@ -51,18 +51,18 @@
     height: 100px;
 }
 .routes-root {
-    background-color: red;
+    background-color: #264653;
     /* width: 100px; */
     display:flex;
 }
 
 .all-route-info {
-    background-color: pink;
+    background-color: #e76f51;
     flex-grow: 1;
 }
 
 .route-info {
-    background-color: violet;
+    background-color: #e9c46a;
     flex-grow: 1;
     border: 1px solid black;
     margin: 5px;
