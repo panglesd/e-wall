@@ -89,6 +89,18 @@ let make_current_route_div =
                             a_value (Lwd.pure "Retour à la liste des voies");
                             a_onclick Route_logic.close_route_callback] () in
   let$* current_route = Main_logic.get_current_route in
+  let save_or_modify =
+    let$* ui_state = Ui_logic.get_ui_state in
+    match ui_state with
+      Ui_logic.Editing_Route -> input ~a:[a_input_type (Lwd.pure `Button);
+                                          a_value (Lwd.pure "Enregistrer la voie");
+                                          a_onclick Route_logic.save_route] ()
+    | Ui_logic.Viewing_Route -> input ~a:[a_input_type (Lwd.pure `Button);
+                                          a_value (Lwd.pure "Modifier la voie");
+                                          a_onclick @@ Lwd.pure @@ Some(fun _e -> Ui_logic.set_ui_state Ui_logic.Editing_Route; false)] ()
+    | _ -> input ~a:[] ()
+  in
+
   match current_route with
     None -> 
      div ~a:[a_class (Lwd.pure ["right-panel-route"; "invisible"])] []
@@ -99,7 +111,8 @@ let make_current_route_div =
       close_div;
       div_info;
       div ~a:[a_class (Lwd.pure(["route-hold-list"]))] (holds_info @ [txt (Lwd.pure "Cliquer sur une prise pour la rajouter au parcours")]);
+      save_or_modify;
       input ~a:[a_input_type (Lwd.pure `Button);
-                a_value (Lwd.pure "Enregistrer la voie");
-                a_onclick Route_logic.save_route] () 
+                a_value (Lwd.pure "Supprimer la voie");
+                a_onclick Route_logic.delete_route] ()
     ]

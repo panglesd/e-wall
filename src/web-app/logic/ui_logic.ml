@@ -12,7 +12,7 @@ let ui_state_var = Lwd.var Viewing_Route_List
 let loaded = Lwd.var false
 
 let get_ui_state = Lwd.get ui_state_var
-let get_ui_state_val = Lwd.peek ui_state_var
+let get_ui_state_val () = Lwd.peek ui_state_var
            
 let set_ui_state state = match state with
     Editing_Panel -> Lwd.set ui_state_var Editing_Panel

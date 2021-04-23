@@ -5,7 +5,7 @@ type ui_state =
 | Viewing_Route
 
 val get_ui_state : ui_state Lwd.t
-val get_ui_state_val : ui_state
+val get_ui_state_val : unit -> ui_state
 val set_ui_state : ui_state -> unit
 
 val loaded : bool Lwd.var

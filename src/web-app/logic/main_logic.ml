@@ -34,11 +34,11 @@ let get_current_route = Lwd.get current_route_var
 let get_current_panel = Lwd.get current_panel_var
 let get_current_holds = Lwd.get current_holds_var
 
-let get_all_panels_val = Lwd.peek all_panels_var
-let get_all_routes_val = Lwd.peek all_routes_var
-let get_current_route_val = Lwd.peek current_route_var
-let get_current_panel_val = Lwd.peek current_panel_var
-let get_current_holds_val = Lwd.peek current_holds_var
+let get_all_panels_val () = Lwd.peek all_panels_var
+let get_all_routes_val () = Lwd.peek all_routes_var
+let get_current_route_val () = Lwd.peek current_route_var
+let get_current_panel_val () = Lwd.peek current_panel_var
+let get_current_holds_val () = Lwd.peek current_holds_var
 
 
                       

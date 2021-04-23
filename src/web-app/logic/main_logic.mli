@@ -6,11 +6,11 @@ val get_all_routes : Model.Route.t list Lwd.t
 val get_current_route : Model.Route.t option Lwd.t
 val get_current_holds : Model.Hold.t Lwd.var list Lwd.t
 
-val get_current_panel_val : Model.Panel.t option
-val get_all_panels_val : Model.Panel.t list
-val get_all_routes_val : Model.Route.t list
-val get_current_route_val : Model.Route.t option
-val get_current_holds_val : Model.Hold.t Lwd.var list
+val get_current_panel_val : unit -> Model.Panel.t option
+val get_all_panels_val : unit -> Model.Panel.t list
+val get_all_routes_val : unit -> Model.Route.t list
+val get_current_route_val : unit -> Model.Route.t option
+val get_current_holds_val : unit -> Model.Hold.t Lwd.var list
 (* Elaborate getters *)
 val get_panels_to_show : Model.Panel.t list Lwd.t
 
