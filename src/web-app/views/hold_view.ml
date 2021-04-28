@@ -7,6 +7,12 @@ let make (hold_var:Hold.t Lwd.var) =
   let$* ui_state = Ui_logic.get_ui_state in
   let scale_var = Lwd.var 1. in
   let$* hold = Lwd.get hold_var in
+  let class_attribute =
+    let$ focused_hold = Main_logic.get_focused_hold in
+    match focused_hold with
+      None -> ["hold-info"]
+    | Some h when h = hold -> ["hold-info"; "focused-hold"]
+    | Some _ -> ["hold-info"] in
   let round_container_size = 80 in
   let (x,y) = hold.position |> fun (x,y) -> (int_of_float x, int_of_float y) in
   let img_style =
@@ -25,7 +31,9 @@ let make (hold_var:Hold.t Lwd.var) =
   match ui_state with
   |  Ui_logic.Editing_Panel ->
       let _panel_string = hold.panel.name in
-      div ~a:[a_class (Lwd.pure ["hold-info"])] [
+      div ~a:[a_class class_attribute;
+              a_onmouseover @@ Lwd.pure @@ Some (fun _e -> Main_logic.set_focused_hold @@ Some hold; false);
+              a_onmouseout @@ Lwd.pure @@ Some (fun _e -> Main_logic.set_focused_hold @@ None; false)] [
           div ~a:[a_class (Lwd.pure ["round-hold-container"])] [
               img
                 ~a:[a_style img_style;
@@ -82,7 +90,9 @@ let make (hold_var:Hold.t Lwd.var) =
     | Ui_logic.Viewing_Route  ->
      let _panel_string = hold.panel.name in 
      (* let (x,y) = hold.position |> fun (x,y) -> (int_of_float x, int_of_float y) in *)
-     div ~a:[a_class (Lwd.pure ["hold-info"])] [
+     div ~a:[a_class class_attribute;
+              a_onmouseover @@ Lwd.pure @@ Some (fun _e -> Main_logic.set_focused_hold @@ Some hold; false);
+              a_onmouseout @@ Lwd.pure @@ Some (fun _e -> Main_logic.set_focused_hold @@ None; false)] [
          div ~a:[a_class (Lwd.pure ["round-hold-container"])] [
              img
                ~a:[a_style img_style;
@@ -116,6 +126,16 @@ let hold_in_panel_div (hold_var:Model.Hold.t Lwd.var) =
                            ~editing_route:Panel_logic.mouse_click_callback
                            ~viewing_route:(fun _var -> Lwd.pure None)
                            ~viewing_route_list:(fun _var -> Lwd.pure None) (Some hold_var)
+  and mouseover_callback = Ui_logic.make_callback
+                           ~editing_panel:(fun _var -> Lwd.pure None)
+                           ~editing_route:(fun _var -> Lwd.pure None)
+                           ~viewing_route:(fun _var -> Lwd.pure @@ Some (fun _e -> Main_logic.set_focused_hold @@ Some hold; false))
+                           ~viewing_route_list:(fun _var -> Lwd.pure None) (Some hold_var)
+  and mouseout_callback = Ui_logic.make_callback
+                           ~editing_panel:(fun _var -> Lwd.pure None)
+                           ~editing_route:(fun _var -> Lwd.pure None)
+                           ~viewing_route:(fun _var -> Lwd.pure @@ Some (fun _e -> Main_logic.set_focused_hold @@ None; false))
+                           ~viewing_route_list:(fun _var -> Lwd.pure None) (Some hold_var)
   and mousedown_callback = Ui_logic.make_callback
                              ~editing_panel:Panel_logic.mouse_down_callback
                              ~editing_route:(fun _var -> Lwd.pure None)
@@ -133,14 +153,25 @@ let hold_in_panel_div (hold_var:Model.Hold.t Lwd.var) =
   let scale = hold.size * img##.height in
   let size = scale/300 in
   let border_size = 2 in
+  let class_attribute =
+    if loaded && ready then
+    let$ focused_hold = Main_logic.get_focused_hold in
+    match focused_hold with
+      None -> ["hold"]
+    | Some h when h = hold -> ["hold"; "focused-hold"]
+    | Some _ -> ["hold"]
+  else
+    Lwd.pure [] in
   div ~a:[
       a_style (Lwd.pure @@ Printf.sprintf "left:%dpx; top: %dpx;width: %dpx; height: %dpx;border-radius: %dpx" (int_of_float x-size/2-border_size) (int_of_float y-size/2-border_size) size size scale);
-      a_class (Lwd.pure @@ if loaded && ready then ["hold"] else []);
+      a_class class_attribute;
       (* a_onclick (Lwd.pure @@ move_hold hold_var); *)
       a_onclick click_callback;
       a_onmousedown mousedown_callback;
       a_onmouseup mouseup_callback;
       a_onmousemove mousemove_callback;
+      a_onmouseover mouseover_callback;
+      a_onmouseout mouseout_callback;
     ] []
   
 

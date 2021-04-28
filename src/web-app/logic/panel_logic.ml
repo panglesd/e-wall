@@ -27,6 +27,7 @@ let delete_panel : (Js_of_ocaml.Dom_html.mouseEvent Js_of_ocaml.Js.t -> bool) Lw
     false
                 
 let mouse_click_add : Tyxml_lwd.Xml.mouse_event_handler =
+  let$ current_panel_opt = Main_logic.get_current_panel in
   let f = fun e ->
     let elem = Js_of_ocaml.Dom.eventTarget e in
     let target = e##.target in
@@ -49,8 +50,9 @@ let mouse_click_add : Tyxml_lwd.Xml.mouse_event_handler =
       let x,y = Js_of_ocaml.Dom_html.elementClientPosition elem in
       let x2,y2 = Js_of_ocaml.Dom_html.eventAbsolutePosition e in
       Printf.printf "on click, x, y and co are now %d %d %d %d\n" x y x2 y2;
-      let _ =
-        let$ current_panel_opt = Main_logic.get_current_panel in
+      let () =
+        Printf.printf "Adding a hold2\n";
+        flush(stdout);
         match current_panel_opt with
         Some panel ->
          let new_hold = Model.Hold.make_rand_id ~panel
@@ -58,14 +60,13 @@ let mouse_click_add : Tyxml_lwd.Xml.mouse_event_handler =
                           ~size:30
                           ~name:"" in
          Main_logic.add_hold new_hold;
-           ;
-         false
-        | None -> false  in
+         ()
+        | None -> ()  in
       false
     else begin
         (* Printf.printf "bliblibli\n"; *)
         false end in
-  Lwd.pure @@ Some f
+  Some f
 
 let mouse_click_remove hold_var =
   let f = fun _e ->

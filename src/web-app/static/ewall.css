@@ -10,7 +10,7 @@
 
 
 .right-panel-route {
-
+    overflow: scroll;
     
 }
 
@@ -134,5 +134,19 @@
     width:40px;
 }
 .hold-info {
-    margin: 3px;
+    margin: 5px;
+    background-color:#f4a261;
+    padding: 3px;
+    display: flex;
+    align-items: center;
+}
+
+.hold-name {
+    margin: 20px;
+}
+.hold.focused-hold {
+    background-color: rgba(255,0,0,0.5);
+}
+.hold-info.focused-hold {
+    background-color: red;
 }

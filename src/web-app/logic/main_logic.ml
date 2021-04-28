@@ -10,6 +10,7 @@ let current_route_var = Lwd.var @@ None
 (* The current panel *)
 let current_panel_var = Lwd.var @@ None 
 let current_holds_var = Lwd.var @@ [] 
+let focused_hold_var = Lwd.var @@ None
 (* Whether the form for a new form should be visible  *)
 (* let (panel_form_var:unit option Lwd.var) = Lwd.var @@ None *)
 
@@ -31,7 +32,13 @@ let get_panels_to_show =
 let get_all_panels = Lwd.get all_panels_var
 let get_all_routes = Lwd.get all_routes_var
 let get_current_route = Lwd.get current_route_var
-let get_current_panel = Lwd.get current_panel_var
+let get_focused_hold = Lwd.get focused_hold_var
+let get_current_panel =
+  (* let$* focused_hold = get_focused_hold in
+   * match focused_hold with *)
+    (* None ->  *)Lwd.get current_panel_var
+  (* | Some hold -> Lwd.pure @@ Some Model.Hold.(hold.panel) *)
+  
 let get_current_holds = Lwd.get current_holds_var
 
 let get_all_panels_val () = Lwd.peek all_panels_var
@@ -39,6 +46,7 @@ let get_all_routes_val () = Lwd.peek all_routes_var
 let get_current_route_val () = Lwd.peek current_route_var
 let get_current_panel_val () = Lwd.peek current_panel_var
 let get_current_holds_val () = Lwd.peek current_holds_var
+let get_focused_hold_val () = Lwd.peek focused_hold_var
 
 
                       
@@ -68,7 +76,14 @@ let set_current_holds hold_list =
   Lwd.set current_holds_var hold_list
 
 let add_hold hold =
+  Printf.printf "Adding a hold\n";
   Lwd.set current_holds_var @@ (Lwd.var hold)::(Lwd.peek current_holds_var)
+
+let set_focused_hold hold_opt =
+  match hold_opt with
+    None -> Lwd.set focused_hold_var hold_opt
+  | Some hold -> set_current_panel Model.Hold.(hold.panel) ; Lwd.set focused_hold_var hold_opt
+  
   
 (* Receive from server *)
 let update_current_holds () =
