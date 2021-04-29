@@ -6,18 +6,24 @@ open Logic
 (* Creating a div of a route         *)
 (* ********************************* *)
 
-let div_of_route ?on_click (route:Route.t) = 
+let div_of_route ?on_click (route:Route.t) =
+  let attr_class =
+    let$ current_route = Main_logic.get_current_route in
+    match current_route with
+      None -> ["route-info"]
+    | Some r when r = route -> ["route-info";"route-selected"]
+    | Some _ -> ["route-info"] in
   let cotation_string = match route.cotation with
       None -> "Non côtée"
     | Some cot -> Cotation.string_of_cotation cot in
-  let feet_string, classList = match route.feet with
-      All -> "Tout pied autorisés", "all-feet"
-    | Only -> "Seul les prises de main peuvent être utilisées avec les pieds", "restricted-feet" in
+  let feet_string = match route.feet with
+      All -> "Tout pied autorisés"
+    | Only -> "Seul les prises de main peuvent être utilisées avec les pieds" in
   let name =
     div ~a:[a_class (Lwd.pure ["route-name"])] [txt (Lwd.pure route.name)]
   in
   let on_click = Lwd.pure Opt_monad.(on_click *=< route) in
-  div ~a:[a_class (Lwd.pure ["route-info"; classList]); a_onclick on_click] [
+  div ~a:[a_class attr_class; a_onclick on_click] [
       (* div ~a:[a_class (Lwd.pure ["route-name"])] [txt (Lwd.pure route.name)]; *)
       name;
       div ~a:[a_class (Lwd.pure ["route-cotation"])] [txt (Lwd.pure cotation_string)];

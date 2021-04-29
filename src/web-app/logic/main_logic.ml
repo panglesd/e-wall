@@ -68,9 +68,22 @@ let set_route_list (route_list:Model.Route.t list) =
 let set_current_route (route:Model.Route.t option) =
   match route with
     None ->
-     Lwd.set current_route_var None;
+     if List.mem (get_current_panel_val()) @@ List.map (fun a -> Some a) @@ get_all_panels_val () then
+       Lwd.set current_route_var (None)
+     else
+       begin match get_all_panels_val () with
+         [] -> Lwd.set current_route_var (None)
+       | panel::_ ->
+          Lwd.set current_panel_var (Some panel);
+          Lwd.set current_route_var (None)
+       end 
   | Some route ->
-     Lwd.set current_route_var (Some route)
+     begin match route.holds with
+       [] -> Lwd.set current_route_var (Some route)
+     | hold::_ ->
+        Lwd.set current_panel_var (Some hold.panel);
+        Lwd.set current_route_var (Some route)
+     end 
     
 let set_current_holds hold_list =
   Lwd.set current_holds_var hold_list
