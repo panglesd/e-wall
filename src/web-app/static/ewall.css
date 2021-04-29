@@ -2,6 +2,16 @@
 /*     background-color: red; */
 /* } */
 
+:root {
+    --color-1: #f4a261;
+    --color-2: #2a9d8f;
+    --color-3: #e76f51;
+    --color-4: #264653;
+    --color-5: #e9c46a;
+    --focused-color: red;
+    --focused-transparency: rgba(255,0,0,0.5);
+}
+
 .main-panel {
     display: flex;
     justify-content: center;
@@ -89,7 +99,7 @@
     position:absolute;
     width:20px;
     height:20px;
-    border: 2px solid red;
+    border: 2px solid var(--focused-color);
     border-radius: 20px;
 }
 
@@ -97,7 +107,7 @@
     background:lightgrey;    
 }
 .tool.selected {
-    border: 1px solid red;
+    border: 1px solid var(--focused-color);
     background:white;    
 }
 
@@ -145,8 +155,11 @@
     margin: 20px;
 }
 .hold.focused-hold {
-    background-color: rgba(255,0,0,0.5);
+    background-color: var(--focused-transparency);
 }
 .hold-info.focused-hold {
-    background-color: red;
+    background-color: var(--focused-color);
+}
+.route-info.route-selected {
+    background-color: var(--focused-color);  
 }
